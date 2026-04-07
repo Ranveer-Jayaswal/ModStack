@@ -93,194 +93,54 @@
 
         .logo-wrap {
             display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 800;
-            font-size: 20px;
-            letter-spacing: -0.5px;
+            align-items: center; gap: 8px; font-weight: 800; font-size: 20px; letter-spacing: -0.5px;
         }
 
-        .logo-wrap img {
-            width: 28px;
-            height: 28px;
-        }
+        .logo-wrap img { width: 28px; height: 28px; }
 
-        .plan-badge {
-            font-size: 10px;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-weight: 700;
-            text-transform: uppercase;
-            background: var(--accent);
-            color: white;
-        }
+        .plan-badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 700; text-transform: uppercase; background: var(--accent); color: white; }
 
-        nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: var(--surface);
-            border-top: 1px solid var(--surface2);
-            padding-bottom: var(--safe-bottom);
-            display: flex;
-            justify-content: space-around;
-            z-index: 100;
-            transition: background 0.5s;
-        }
+        nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface); border-top: 1px solid var(--surface2); padding-bottom: var(--safe-bottom); display: flex; justify-content: space-around; z-index: 100; transition: background 0.5s; }
 
-        body.pro nav {
-            background: #0c1a0c;
-            border-top-color: #1a3a1a;
-        }
+        body.pro nav { background: #0c1a0c; border-top-color: #1a3a1a; }
 
-        .nav-item {
-            flex: 1;
-            padding: 12px 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            color: var(--text);
-            font-size: 10px;
-            font-weight: 600;
-            text-decoration: none;
-            transition: color 0.2s;
-        }
+        .nav-item { flex: 1; padding: 12px 0; display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text); font-size: 10px; font-weight: 600; text-decoration: none; transition: color 0.2s; }
 
-        .nav-item.active {
-            color: var(--accent);
-        }
+        .nav-item.active { color: var(--accent); }
 
-        .screen {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            padding-bottom: 100px;
-            display: none;
-            animation: slideUp 0.4s cubic-bezier(0,0,0.2,1);
-        }
+        .screen { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 100px; display: none; animation: slideUp 0.4s cubic-bezier(0,0,0.2,1); }
 
-        .screen.active {
-            display: block;
-        }
+        .screen.active { display: block; }
 
-        @keyframes slideUp {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        .overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.8);
-            z-index: 1000;
-            display: none;
-            align-items: flex-end;
-            backdrop-filter: blur(4px);
-        }
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000; display: none; align-items: flex-end; backdrop-filter: blur(4px); }
 
-        .sheet {
-            width: 100%;
-            background: var(--surface);
-            border-radius: 20px 20px 0 0;
-            padding: 24px;
-            padding-bottom: calc(24px + var(--safe-bottom));
-            transform: translateY(100%);
-            transition: transform 0.4s cubic-bezier(0,0,0.2,1);
-        }
+        .sheet { width: 100%; background: var(--surface); border-radius: 20px 20px 0 0; padding: 24px; padding-bottom: calc(24px + var(--safe-bottom)); transform: translateY(100%); transition: transform 0.4s cubic-bezier(0,0,0.2,1); }
 
-        .overlay.active {
-            display: flex;
-        }
+        .overlay.active { display: flex; }
 
-        .overlay.active .sheet {
-            transform: translateY(0);
-        }
+        .overlay.active .sheet { transform: translateY(0); }
 
-        .btn {
-            width: 100%;
-            padding: 16px;
-            border-radius: 12px;
-            border: none;
-            font-weight: 700;
-            font-size: 16px;
-            margin-bottom: 12px;
-            cursor: pointer;
-            transition: transform 0.1s;
-        }
+        .btn { width: 100%; padding: 16px; border-radius: 12px; border: none; font-weight: 700; font-size: 16px; margin-bottom: 12px; cursor: pointer; transition: transform 0.1s; }
 
-        .btn:active {
-            transform: scale(0.98);
-        }
+        .btn:active { transform: scale(0.98); }
 
-        .btn-primary {
-            background: var(--accent);
-            color: white;
-        }
+        .btn-primary { background: var(--accent); color: white; }
 
-        .btn-secondary {
-            background: var(--surface2);
-            color: var(--white);
-        }
+        .btn-secondary { background: var(--surface2); color: var(--white); }
 
-        .toggle-wrap {
-            display: flex;
-            background: var(--surface2);
-            border-radius: 12px;
-            padding: 4px;
-            margin-bottom: 20px;
-        }
+        .toggle-wrap { display: flex; background: var(--surface2); border-radius: 12px; padding: 4px; margin-bottom: 20px; }
 
-        .toggle-btn {
-            flex: 1;
-            padding: 8px;
-            border-radius: 8px;
-            border: none;
-            background: transparent;
-            color: var(--text);
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
+        .toggle-btn { flex: 1; padding: 8px; border-radius: 8px; border: none; background: transparent; color: var(--text); font-weight: 700; cursor: pointer; transition: all 0.2s; }
 
-        .toggle-btn.active {
-            background: var(--surface);
-            color: var(--white);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-        }
+        .toggle-btn.active { background: var(--surface); color: var(--white); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
 
-        #welcome-pro {
-            position: fixed;
-            inset: 0;
-            background: #0c1a0c;
-            z-index: 2000;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 40px;
-            text-align: center;
-        }
+        #welcome-pro { position: fixed; inset: 0; background: #0c1a0c; z-index: 2000; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 40px; text-align: center; }
 
-        #welcome-pro .logo-img {
-            margin-bottom: 30px;
-            filter: drop-shadow(0 0 20px var(--green));
-        }
+        #welcome-pro .logo-img { margin-bottom: 30px; filter: drop-shadow(0 0 20px var(--green)); }
 
-        #polling-overlay {
-            position: fixed;
-            inset: 0;
-            background: var(--black);
-            z-index: 3000;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
-            text-align: center;
-            padding: 20px;
-        }
+        #polling-overlay { position: fixed; inset: 0; background: var(--black); z-index: 3000; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 20px; text-align: center; padding: 20px; }
     </style>
 </head>
 <body>
@@ -386,8 +246,6 @@
 
         const SB_URL = "https://axzxsxdpahnqivnbbysf.supabase.co";
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF4enhzeGRwYWhucWl2bmJieXNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0NDM3MjIsImV4cCI6MjA5MTAxOTcyMn0.vvJrFlkoyEMaSwXt3JbG97L62YS0pcxPKPS6G7Qf0Ns";
-        
-        // Fixed: Use a different name for the client to avoid shadowing
         const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
         
         let user = null;
@@ -413,12 +271,7 @@
         }
 
         async function loadProfile() {
-            const { data, error } = await supabaseClient
-                .from('profiles')
-                .select('*')
-                .eq('id', user.id)
-                .single();
-            
+            const { data, error } = await supabaseClient.from('profiles').select('*').eq('id', user.id).single();
             if (data) {
                 profile = data;
                 document.body.classList.toggle('pro', profile.is_pro);
@@ -441,33 +294,24 @@
             }
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(screen).classList.add('active');
-            
             document.querySelectorAll('.nav-item').forEach(n => {
                 n.classList.toggle('active', n.textContent.toLowerCase().includes(screen));
             });
         }
 
-        function showUpgrade() {
-            document.getElementById('upgrade-overlay').classList.add('active');
-        }
-
-        function closeUpgrade() {
-            document.getElementById('upgrade-overlay').classList.remove('active');
-        }
+        function showUpgrade() { document.getElementById('upgrade-overlay').classList.add('active'); }
+        function closeUpgrade() { document.getElementById('upgrade-overlay').classList.remove('active'); }
 
         function setPlan(plan) {
             selectedPlan = plan;
             document.getElementById('monthly-btn').classList.toggle('active', plan === 'monthly');
             document.getElementById('yearly-btn').classList.toggle('active', plan === 'yearly');
-            
-            document.getElementById('price-display').innerHTML = plan === 'monthly' 
-                ? '$12<span style="font-size: 16px; color: var(--text); font-weight: 600;">/mo</span>'
-                : '$119<span style="font-size: 16px; color: var(--text); font-weight: 600;">/yr</span>';
+            document.getElementById('price-display').innerHTML = plan === 'monthly' ? '$12<span style="font-size: 16px; color: var(--text); font-weight: 600;">/mo</span>' : '$119<span style="font-size: 16px; color: var(--text); font-weight: 600;">/yr</span>';
         }
 
         function goStripe() {
-            const monthlyLink = `https://buy.stripe.com/5kQ6oA81AdrA0dicov0V000?prefilled_email=${encodeURIComponent(user.email)}`;
-            const yearlyLink = `https://buy.stripe.com/9B67sE5Tsbjse4888f0V001?prefilled_email=${encodeURIComponent(user.email)}`;
+            const monthlyLink = `https://buy.stripe.com/9B6cMY4Po1ISf8c6070V002?prefilled_email=${encodeURIComponent(user.email)}`;
+            const yearlyLink = `https://buy.stripe.com/5kQdR23Lk5Z88JO4W30V003?prefilled_email=${encodeURIComponent(user.email)}`;
             window.location.href = selectedPlan === 'monthly' ? monthlyLink : yearlyLink;
         }
 
@@ -476,41 +320,30 @@
                 const { data: { session } } = await supabaseClient.auth.getSession();
                 const res = await fetch(SB_URL + "/functions/v1/create-portal-session", {
                     method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${session.access_token}`,
-                        'Content-Type': 'application/json'
-                    }
+                    headers: { 'Authorization': `Bearer ${session.access_token}`, 'Content-Type': 'application/json' }
                 });
                 const { url } = await res.json();
                 if (url) window.location.href = url;
-            } catch (e) {
-                alert("Failed to open billing portal. Please try again.");
-            }
+            } catch (e) { alert("Failed to open billing portal. Please try again."); }
         }
 
         function checkUpgradedParam() {
             const params = new URLSearchParams(window.location.search);
-            if (params.get('
-            upgraded') === '1' && !profile?.is_pro) {
-                startPolling();
-            }
+            if (params.get('upgraded') === '1' && !profile?.is_pro) { startPolling(); }
         }
 
         function startPolling() {
             const overlay = document.getElementById('polling-overlay');
             overlay.style.display = 'flex';
-            
             let attempts = 0;
             const interval = setInterval(async () => {
                 attempts++;
                 await loadProfile();
-                
                 if (profile?.is_pro) {
                     clearInterval(interval);
                     overlay.style.display = 'none';
                     showWelcome();
                     renderUI();
-                    // Clean URL
                     window.history.replaceState({}, document.title, window.location.pathname);
                 } else if (attempts >= 30) {
                     clearInterval(interval);
@@ -526,17 +359,8 @@
                 localStorage.setItem(key, 'true');
             }
         }
-
-        function closeWelcome() {
-            document.getElementById('welcome-pro').style.display = 'none';
-        }
-
-        async function signOut() {
-            await supabaseClient.auth.signOut();
-            localStorage.clear();
-            window.location.href = 'index.html';
-        }
-
+        function closeWelcome() { document.getElementById('welcome-pro').style.display = 'none'; }
+        async function signOut() { await supabaseClient.auth.signOut(); localStorage.clear(); window.location.href = 'index.html'; }
         function showApp() {
             document.getElementById('loader').style.opacity = '0';
             setTimeout(() => {
@@ -546,15 +370,9 @@
             }, 500);
         }
 
-        
-                // Safety timeout to force show app if initialization hangs
-        setTimeout(() => {
-            const loader = document.getElementById('loader');
-            if (loader && loader.style.display !== 'none') {
-                console.log("Initialization timeout: forcing app display");
-                showApp();
-            }
-        }, 3000);
+        init();
+        // Safety timeout
+        setTimeout(() => { if (document.getElementById('loader').style.display !== 'none') showApp(); }, 3000);
     </script>
 </body>
 </html>
