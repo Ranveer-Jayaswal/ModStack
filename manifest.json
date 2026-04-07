@@ -1,0 +1,24 @@
+{
+  "name": "ModStack",
+  "short_name": "ModStack",
+  "description": "Track every mod, every dollar. The car build tracker for enthusiasts.",
+  "start_url": "/app.html",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#c0392b",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

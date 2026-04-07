@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>ModStack</title>
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#0a0a0a"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black"/>
+<meta name="apple-mobile-web-app-title" content="ModStack"/>
+<link rel="apple-touch-icon" href="icon-192.png"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=DM+Mono&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --black:#0a0a0a;--surface:#141414;--surface2:#1c1c1c;--surface3:#252525;
+  --white:#f0ede8;--text:#b0ada8;--red:#c0392b;--red2:#e74c3c;
+  --green:#1a9e69;--green2:#0f6e56;--amber:#f39c12;--border:#242424;--muted:#555;--radius:12px;
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overscroll-behavior:none;}
+body{background:var(--black);color:var(--white);font-family:'DM Sans',sans-serif;display:flex;flex-direction:column;height:100dvh;overflow:hidden;}
+button,input,select,textarea{font-family:'DM Sans',sans-serif;font-size:15px;}
+
+/* ── TRANSITIONS ── */
+.fade-in{animation:fadeIn .35s ease both;}
+.slide-up{animation:slideUp .4s cubic-bezier(.16,1,.3,1) both;}
+.slide-in-right{animation:slideInRight .35s cubic-bezier(.16,1,.3,1) both;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+@keyframes slideInRight{from{transform:translateX(24px);opacity:0;}to{transform:translateX(0);opacity:1;}}
+@keyframes dotPulse{0%,80%,100%{background:#333;}40%{background:#888;}}
+@keyframes spin{to{transform:rotate(360deg);}}
+@keyframes popIn{from{transform:scale(.6);opacity:0;}to{transform:scale(1);opacity:1;}}
+@keyframes shimmer{0%{background-position:-200% 0;}100%{background-position:200% 0;}}
+
+/* ── LOADING ── */
+.loading{display:flex;align-items:center;justify-content:center;height:100dvh;flex-direction:column;gap:16px;}
+.loading-logo{font-family:'Bebas Neue',sans-serif;font-size:42px;letter-spacing:3px;animation:fadeIn .5s ease;}
+.loading-logo span{color:var(--red);}
+.spinner{width:24px;height:24px;border:2px solid var(--border);border-top-color:var(--red);border-radius:50%;animation:spin .7s linear infinite;}
+
+/* ── AUTH ── */
+.auth-wrap{flex:1;display:none;flex-direction:column;align-items:center;justify-content:center;padding:2rem;gap:1.5rem;}
+.auth-logo{font-family:'Bebas Neue',sans-serif;font-size:52px;letter-spacing:3px;text-align:center;animation:slideUp .5s ease;}
+.auth-logo span{color:var(--red);}
+.auth-tagline{font-size:14px;color:var(--muted);text-align:center;margin-top:-12px;animation:fadeIn .6s .1s ease both;}
+.auth-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;width:100%;max-width:400px;animation:slideUp .5s .15s ease both;}
+.auth-card h2{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1px;margin-bottom:6px;}
+.auth-card p{font-size:13px;color:var(--muted);margin-bottom:20px;}
+.auth-field{margin-bottom:12px;}
+.auth-field label{display:block;font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;margin-bottom:5px;}
+.auth-field input{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--white);padding:13px 14px;border-radius:10px;font-size:15px;transition:border-color .2s;}
+.auth-field input:focus{outline:none;border-color:#555;}
+.auth-btn{width:100%;background:var(--red);border:none;color:#fff;padding:14px;border-radius:10px;font-size:15px;font-weight:500;cursor:pointer;margin-top:4px;transition:transform .15s,background .15s;}
+.auth-btn:active{transform:scale(.98);background:var(--red2);}
+.auth-btn:disabled{opacity:.5;cursor:not-allowed;}
+.auth-switch{text-align:center;margin-top:16px;font-size:13px;color:var(--muted);}
+.auth-switch button{background:none;border:none;color:var(--red2);cursor:pointer;font-size:13px;text-decoration:underline;}
+.auth-msg{border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:12px;display:none;}
+.auth-msg.error{background:rgba(192,57,43,.12);border:1px solid rgba(192,57,43,.3);color:#e74c3c;}
+.auth-msg.success{background:rgba(26,158,105,.12);border:1px solid rgba(26,158,105,.3);color:#1a9e69;}
+
+/* ── UPGRADING SCREEN ── */
+#upgrading-screen{display:none;position:fixed;inset:0;background:#0a0a0a;z-index:400;flex-direction:column;align-items:center;justify-content:center;gap:20px;text-align:center;padding:2rem;}
+.upgrading-spinner{width:52px;height:52px;border:3px solid #1a3a1a;border-top-color:#1a9e69;border-radius:50%;animation:spin .9s linear infinite;}
+.upgrading-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;color:#1a9e69;animation:fadeIn .4s ease;}
+.upgrading-sub{font-size:14px;color:#555;max-width:240px;line-height:1.6;}
+.upgrading-dots span{display:inline-block;width:6px;height:6px;border-radius:50%;background:#1a3a1a;margin:0 3px;animation:dotPulse 1.2s ease infinite;}
+.upgrading-dots span:nth-child(2){animation-delay:.2s;}
+.upgrading-dots span:nth-child(3){animation-delay:.4s;}
+@keyframes dotPulse{0%,80%,100%{background:#1a3a1a;}40%{background:#1a9e69;}}
+
+/* ── PRO WELCOME ── */
+.pro-welcome{position:fixed;inset:0;background:#000;z-index:500;display:none;flex-direction:column;align-items:center;justify-content:center;padding:2rem;text-align:center;overflow:hidden;}
+.pw-bg{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 60%,rgba(26,158,105,.15) 0%,transparent 70%);}
+.pw-icon{font-size:72px;animation:popIn .6s cubic-bezier(.175,.885,.32,1.275) both;position:relative;z-index:1;}
+.pw-badge{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:3px;color:#1a9e69;background:rgba(26,158,105,.1);border:1px solid rgba(26,158,105,.3);padding:5px 16px;border-radius:20px;margin:12px 0 6px;animation:fadeIn .4s .3s both;position:relative;z-index:1;}
+.pw-title{font-family:'Bebas Neue',sans-serif;font-size:52px;letter-spacing:2px;color:var(--white);line-height:1;animation:slideUp .5s .35s both;position:relative;z-index:1;}
+.pw-sub{font-size:15px;color:var(--text);line-height:1.7;max-width:280px;margin:12px 0 24px;animation:slideUp .4s .45s both;position:relative;z-index:1;}
+.pw-feats{display:flex;flex-direction:column;gap:8px;margin-bottom:28px;animation:slideUp .4s .55s both;width:100%;max-width:300px;position:relative;z-index:1;}
+.pw-feat{display:flex;align-items:center;gap:12px;background:rgba(26,158,105,.08);border:1px solid rgba(26,158,105,.15);border-radius:10px;padding:11px 16px;font-size:13px;color:var(--white);text-align:left;}
+.pw-feat-icon{color:#1a9e69;font-size:16px;flex-shrink:0;}
+.pw-btn{background:#1a9e69;border:none;color:#fff;padding:16px 48px;border-radius:12px;font-size:16px;font-weight:500;cursor:pointer;animation:slideUp .4s .65s both;font-family:'DM Sans',sans-serif;transition:transform .15s,background .15s;position:relative;z-index:1;}
+.pw-btn:active{transform:scale(.97);background:var(--green2);}
+
+/* ── APP SHELL ── */
+.app-shell{display:none;flex-direction:column;height:100dvh;overflow:hidden;}
+.topbar{border-bottom:1px solid var(--border);padding:14px 20px;padding-top:calc(14px + env(safe-area-inset-top,0px));display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:var(--surface);transition:background .6s,border-color .6s;}
+.topbar.is-pro{background:#0c1f0c;border-bottom-color:#1a3a1a;}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;}
+.logo-mod{color:var(--white);}
+.logo-stack{color:var(--red);transition:color .6s;}
+.topbar.is-pro .logo-stack{color:#1a9e69;}
+.plan-chip{font-size:10px;font-family:'DM Mono',monospace;letter-spacing:1.5px;padding:5px 12px;border-radius:20px;cursor:pointer;transition:all .4s;border:1px solid rgba(192,57,43,.4);background:rgba(192,57,43,.1);color:#e74c3c;}
+.plan-chip.pro{border-color:rgba(26,158,105,.6);background:rgba(26,158,105,.15);color:#1a9e69;cursor:default;font-weight:500;letter-spacing:2px;}
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 16px calc(80px + var(--safe-bottom));}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;border-top:1px solid var(--border);display:flex;padding-bottom:var(--safe-bottom);z-index:50;background:var(--surface);transition:background .6s,border-color .6s;}
+.bottom-nav.is-pro{background:#0c1f0c;border-top-color:#1a3a1a;}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 0 8px;cursor:pointer;color:var(--muted);font-size:10px;font-family:'DM Mono',monospace;letter-spacing:1px;gap:4px;border:none;background:none;transition:color .2s;}
+.nav-item.active{color:var(--red);}
+.bottom-nav.is-pro .nav-item.active{color:#1a9e69;}
+.nav-icon{font-size:20px;line-height:1;}
+.screen{display:none;}.screen.active{display:block;animation:fadeIn .25s ease;}
+
+/* ── COMPONENTS ── */
+.sec-label{font-size:11px;font-family:'DM Mono',monospace;letter-spacing:2px;color:var(--muted);margin-bottom:10px;text-transform:uppercase;}
+.car-tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:16px;scrollbar-width:none;}
+.car-tabs::-webkit-scrollbar{display:none;}
+.car-tab{flex-shrink:0;padding:8px 16px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text);font-size:13px;cursor:pointer;white-space:nowrap;transition:all .2s;}
+.car-tab.active{background:var(--red);border-color:var(--red);color:#fff;}
+.car-tab.active.pro-tab{background:#1a9e69;border-color:#1a9e69;}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;transition:background .5s,border-color .5s;}
+.stat-card.pro-card{background:#0c1f0c;border-color:#1a3a1a;}
+.stat-label{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;margin-bottom:6px;}
+.stat-val{font-size:24px;font-weight:500;}
+.budget-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px;transition:background .5s,border-color .5s;}
+.budget-card.pro-card{background:#0c1f0c;border-color:#1a3a1a;}
+.budget-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.budget-title{font-size:13px;color:var(--text);}
+.budget-input-wrap{display:flex;align-items:center;gap:6px;}
+.budget-input-wrap span{color:var(--muted);font-size:14px;}
+.budget-input-wrap input{width:90px;background:var(--surface2);border:1px solid var(--border);color:var(--white);padding:6px 10px;border-radius:8px;font-size:14px;text-align:right;transition:border-color .2s;}
+.budget-input-wrap input:focus{outline:none;border-color:#444;}
+.prog-track{height:5px;background:var(--surface3);border-radius:99px;overflow:hidden;margin-bottom:8px;}
+.prog-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--red),var(--amber));transition:width .5s ease,background .6s;}
+.prog-fill.pro-fill{background:linear-gradient(90deg,#1a9e69,var(--amber));}
+.budget-meta{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;}
+.filters{display:flex;gap:6px;overflow-x:auto;margin-bottom:14px;scrollbar-width:none;padding-bottom:2px;}
+.filters::-webkit-scrollbar{display:none;}
+.filter-btn{flex-shrink:0;padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:11px;font-family:'DM Mono',monospace;letter-spacing:1px;cursor:pointer;white-space:nowrap;transition:all .2s;}
+.filter-btn.active{background:var(--surface3);border-color:#444;color:var(--white);}
+.mod-list{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;}
+.mod-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;display:flex;align-items:flex-start;gap:12px;transition:background .15s;animation:slideUp .3s ease both;}
+.mod-card:active{background:var(--surface2);}
+.mod-info{flex:1;min-width:0;}
+.mod-name{font-size:15px;font-weight:500;color:var(--white);margin-bottom:3px;}
+.mod-cat{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:.5px;}
+.mod-note-txt{font-size:12px;color:#444;margin-top:5px;font-style:italic;line-height:1.4;}
+.mod-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0;}
+.mod-cost{font-size:15px;font-weight:500;color:var(--text);}
+.badge{font-size:10px;padding:4px 10px;border-radius:20px;font-family:'DM Mono',monospace;letter-spacing:.5px;border:none;cursor:pointer;white-space:nowrap;transition:opacity .15s,transform .1s;}
+.badge:active{opacity:.7;transform:scale(.95);}
+.b-installed{background:rgba(26,158,105,.15);color:#1a9e69;}
+.b-planned{background:rgba(243,156,18,.12);color:#f39c12;}
+.b-progress{background:rgba(52,152,219,.12);color:#3498db;}
+.mod-del{background:none;border:none;color:#333;cursor:pointer;font-size:20px;line-height:1;padding:2px;transition:color .15s;}
+.mod-del:active{color:var(--red2);}
+.no-mods{text-align:center;padding:3rem 1rem;color:var(--muted);font-size:14px;border:1px dashed var(--border);border-radius:var(--radius);}
+.add-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px;}
+.add-card h3{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;margin-bottom:14px;}
+.field{margin-bottom:10px;}
+.field label{display:block;font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;margin-bottom:5px;}
+.field input,.field select,.field textarea{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--white);padding:12px 14px;border-radius:10px;font-size:15px;-webkit-appearance:none;transition:border-color .2s;}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:#555;}
+.field select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;}
+.field select option{background:var(--surface2);}
+.field textarea{resize:none;line-height:1.5;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.add-btn{width:100%;background:var(--red);border:none;color:#fff;padding:14px;border-radius:10px;font-size:15px;font-weight:500;cursor:pointer;margin-top:4px;transition:background .3s,transform .15s;}
+.add-btn.pro-btn{background:#1a9e69;}
+.add-btn:active{transform:scale(.98);}
+.add-btn:disabled{opacity:.5;}
+.build-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:background .15s,border-color .2s;animation:slideUp .3s ease both;}
+.build-card:active{background:var(--surface2);}
+.build-card.active-build{border-color:var(--red);}
+.build-card.active-build.pro-active{border-color:#1a9e69;}
+.build-card-name{font-size:16px;font-weight:500;}
+.build-card-meta{font-size:12px;color:var(--muted);margin-top:3px;font-family:'DM Mono',monospace;}
+.build-card-right{display:flex;align-items:center;gap:10px;}
+.build-del{background:none;border:none;color:#333;cursor:pointer;font-size:22px;line-height:1;padding:4px;transition:color .15s;}
+.build-del:active{color:var(--red2);}
+.add-build-form{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-top:8px;}
+.add-build-form input{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--white);padding:12px 14px;border-radius:10px;font-size:15px;margin-bottom:10px;transition:border-color .2s;}
+.add-build-form input:focus{outline:none;border-color:#555;}
+.add-build-btn{width:100%;background:transparent;border:1px solid var(--border);color:var(--text);padding:12px;border-radius:10px;font-size:14px;cursor:pointer;transition:all .2s;}
+.add-build-btn:active{border-color:#444;color:var(--white);}
+.account-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:16px;}
+.account-row{display:flex;align-items:center;justify-content:space-between;padding:16px;border-bottom:1px solid var(--border);font-size:15px;cursor:pointer;transition:background .15s;}
+.account-row:last-child{border-bottom:none;}
+.account-row:active{background:var(--surface2);}
+.account-row-label{color:var(--text);}
+.account-row-val{color:var(--muted);font-size:13px;}
+.upgrade-banner{background:linear-gradient(135deg,#1a0a0a,#2a0e0e);border:1px solid rgba(192,57,43,.3);border-radius:var(--radius);padding:20px;margin-bottom:16px;text-align:center;}
+.upgrade-banner h3{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px;margin-bottom:6px;}
+.upgrade-banner p{font-size:13px;color:var(--text);margin-bottom:16px;line-height:1.6;}
+.price-row{display:flex;justify-content:center;align-items:baseline;gap:4px;margin-bottom:16px;}
+.price-big{font-family:'Bebas Neue',sans-serif;font-size:48px;color:var(--red);line-height:1;}
+.price-per{font-size:13px;color:var(--muted);}
+.upgrade-banner-btn{display:block;width:100%;background:var(--red);color:#fff;border:none;padding:14px;border-radius:10px;font-size:15px;font-weight:500;cursor:pointer;transition:transform .15s,background .15s;}
+.upgrade-banner-btn:active{transform:scale(.98);background:var(--red2);}
+.trial-note{font-size:11px;color:var(--muted);margin-top:8px;}
+.free-limits{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px;}
+.limit-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:14px;}
+.limit-row span:first-child{color:var(--text);}
+.limit-row span:last-child{font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);}
+.limit-bar{height:4px;background:var(--surface3);border-radius:99px;overflow:hidden;margin-bottom:12px;}
+.limit-bar-fill{height:100%;border-radius:99px;background:var(--red);transition:width .5s ease;}
+.pro-active-card{background:linear-gradient(135deg,#0a1f0a,#0d2a0d);border:1px solid rgba(26,158,105,.3);border-radius:var(--radius);padding:24px;margin-bottom:16px;text-align:center;}
+.pro-active-card h3{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;color:#1a9e69;margin-bottom:6px;}
+.pro-active-card p{font-size:14px;color:var(--text);line-height:1.6;}
+.pro-perks{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px;}
+.pro-perk{background:rgba(26,158,105,.08);border:1px solid rgba(26,158,105,.15);border-radius:8px;padding:10px 12px;font-size:12px;color:#1a9e69;text-align:center;}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:200;display:flex;align-items:flex-end;animation:fadeIn .2s ease;}
+.sheet{background:var(--surface);border-radius:20px 20px 0 0;padding:24px 20px calc(24px + var(--safe-bottom));width:100%;max-height:90dvh;overflow-y:auto;animation:slideUp .35s cubic-bezier(.16,1,.3,1);}
+.sheet-handle{width:40px;height:4px;background:var(--surface3);border-radius:99px;margin:0 auto 20px;}
+.sheet h3{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1px;margin-bottom:8px;}
+.sheet p{font-size:14px;color:var(--text);line-height:1.6;margin-bottom:20px;}
+.sheet-btns{display:flex;flex-direction:column;gap:10px;}
+.sheet-btn{width:100%;padding:14px;border-radius:10px;font-size:15px;font-weight:500;cursor:pointer;border:none;text-align:center;transition:transform .15s,opacity .15s;}
+.sheet-btn:active{transform:scale(.98);opacity:.85;}
+.sheet-btn-primary{background:var(--red);color:#fff;}
+.sheet-btn-secondary{background:var(--surface2);color:var(--white);border:1px solid var(--border);}
+.pro-features{background:var(--surface2);border-radius:10px;padding:14px;margin-bottom:20px;}
+.pro-feat-row{font-size:13px;color:var(--text);padding:5px 0;display:flex;align-items:center;gap:8px;}
+.pro-feat-row span:first-child{color:var(--green);}
+.share-url-box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);word-break:break-all;line-height:1.6;margin-bottom:16px;}
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4rem 2rem;text-align:center;gap:12px;animation:fadeIn .4s ease;}
+.empty-icon{font-size:48px;opacity:.2;}
+.empty-state h3{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:1px;color:#333;}
+.empty-state p{font-size:14px;color:var(--muted);max-width:240px;line-height:1.6;}
+.toast{position:fixed;bottom:calc(80px + var(--safe-bottom) + 12px);left:50%;transform:translateX(-50%);background:var(--white);color:var(--black);padding:10px 20px;border-radius:20px;font-size:13px;font-weight:500;z-index:300;opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;white-space:nowrap;transform:translateX(-50%) translateY(8px);}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.pro-check-banner{background:rgba(26,158,105,.1);border:1px solid rgba(26,158,105,.2);border-radius:10px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;animation:slideUp .3s ease;}
+.pro-check-banner p{font-size:13px;color:#1a9e69;line-height:1.4;}
+.pro-check-btn{background:#1a9e69;border:none;color:#fff;padding:8px 16px;border-radius:8px;font-size:13px;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;transition:background .15s;}
+.pro-check-btn:active{background:var(--green2);}
+</style>
+</head>
+<body>
+
+<div class="loading" id="loading">
+  <div class="loading-logo">Mod<span>Stack</span></div>
+  <div class="spinner"></div>
+</div>
+
+<div class="auth-wrap" id="auth-screen">
+  <div class="auth-logo">Mod<span>Stack</span></div>
+  <div class="auth-tagline">Track every mod. Every dollar.</div>
+  <div id="login-form" style="width:100%;max-width:400px;">
+    <div class="auth-card">
+      <h2>Welcome back</h2>
+      <p>Sign in to your ModStack account</p>
+      <div class="auth-msg error" id="login-error"></div>
+      <div class="auth-field"><label>Email</label><input id="login-email" type="email" placeholder="you@email.com" autocomplete="email"/></div>
+      <div class="auth-field"><label>Password</label><input id="login-password" type="password" placeholder="Your password" autocomplete="current-password"/></div>
+      <button class="auth-btn" id="login-btn" onclick="doLogin()">Sign in</button>
+      <div class="auth-switch">No account? <button onclick="showSignup()">Sign up free</button></div>
+    </div>
+  </div>
+  <div id="signup-form" style="display:none;width:100%;max-width:400px;">
+    <div class="auth-card">
+      <h2>Create account</h2>
+      <p>Free to start. Upgrade anytime.</p>
+      <div class="auth-msg error" id="signup-error"></div>
+      <div class="auth-field"><label>Email</label><input id="signup-email" type="email" placeholder="you@email.com" autocomplete="email"/></div>
+      <div class="auth-field"><label>Password</label><input id="signup-password" type="password" placeholder="At least 6 characters" autocomplete="new-password"/></div>
+      <button class="auth-btn" id="signup-btn" onclick="doSignup()">Create free account</button>
+      <div class="auth-switch">Have an account? <button onclick="showLogin()">Sign in</button></div>
+    </div>
+  </div>
+</div>
+
+<div id="upgrading-screen">
+  <div class="upgrading-spinner"></div>
+  <div class="upgrading-title">Activating Pro</div>
+  <div class="upgrading-sub">Confirming your payment with Stripe…</div>
+  <div class="upgrading-dots"><span></span><span></span><span></span></div>
+</div>
+
+<div class="pro-welcome" id="pro-welcome">
+  <div class="pw-bg"></div>
+  <div class="pw-icon">🏆</div>
+  <div class="pw-badge">MODSTACK</div>
+  <div class="pw-title">Welcome to Pro</div>
+  <div class="pw-sub">You're now a Pro member. Everything is unlocked — build without limits.</div>
+  <div class="pw-feats">
+    <div class="pw-feat"><span class="pw-feat-icon">🚗</span><span>Unlimited car builds</span></div>
+    <div class="pw-feat"><span class="pw-feat-icon">🔧</span><span>Unlimited mods per build</span></div>
+    <div class="pw-feat"><span class="pw-feat-icon">📄</span><span>PDF export unlocked</span></div>
+    <div class="pw-feat"><span class="pw-feat-icon">🔗</span><span>Share links unlocked</span></div>
+    <div class="pw-feat"><span class="pw-feat-icon">☁️</span><span>Cloud sync across all devices</span></div>
+  </div>
+  <button class="pw-btn" onclick="dismissWelcome()">Let's go →</button>
+</div>
+
+<div class="app-shell" id="app-shell">
+  <div class="topbar" id="topbar">
+    <div class="logo"><span class="logo-mod">Mod</span><span class="logo-stack">Stack</span></div>
+    <span class="plan-chip" id="plan-chip" onclick="handleChipClick()">FREE</span>
+  </div>
+  <div class="scroll" id="scroll-area">
+
+    <div class="screen active" id="screen-home">
+      <div id="home-empty" style="display:none;">
+        <div class="empty-state">
+          <div class="empty-icon">🚗</div>
+          <h3>No build yet</h3>
+          <p>Tap Builds below to add your first car</p>
+        </div>
+      </div>
+      <div id="home-content">
+        <div id="pro-check-bar" style="display:none;">
+          <div class="pro-check-banner">
+            <p>Just upgraded? Tap to activate Pro.</p>
+            <button class="pro-check-btn" onclick="pollForPro()">Activate Pro</button>
+          </div>
+        </div>
+        <div class="car-tabs" id="car-tabs"></div>
+        <div class="stats-grid">
+          <div class="stat-card" id="sc1"><div class="stat-label">TOTAL MODS</div><div class="stat-val" id="s-total">0</div></div>
+          <div class="stat-card" id="sc2"><div class="stat-label">INSTALLED</div><div class="stat-val" style="color:var(--green);" id="s-done">0</div></div>
+          <div class="stat-card" id="sc3"><div class="stat-label">PLANNED</div><div class="stat-val" style="color:var(--amber);" id="s-planned">$0</div></div>
+          <div class="stat-card" id="sc4"><div class="stat-label">SPENT</div><div class="stat-val" id="s-spent">$0</div></div>
+        </div>
+        <div class="budget-card" id="budget-card">
+          <div class="budget-row">
+            <span class="budget-title">Build budget</span>
+            <div class="budget-input-wrap"><span>$</span><input id="budget-in" type="number" value="5000" min="0" oninput="onBudgetChange()"/></div>
+          </div>
+          <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+          <div class="budget-meta"><span id="bm-left"></span><span id="bm-rem"></span></div>
+        </div>
+        <div class="filters">
+          <button class="filter-btn active" onclick="setFilter('all',this)">ALL</button>
+          <button class="filter-btn" onclick="setFilter('planned',this)">PLANNED</button>
+          <button class="filter-btn" onclick="setFilter('in-progress',this)">IN PROGRESS</button>
+          <button class="filter-btn" onclick="setFilter('installed',this)">INSTALLED</button>
+        </div>
+        <div class="mod-list" id="mod-list"></div>
+      </div>
+    </div>
+
+    <div class="screen" id="screen-add">
+      <div class="add-card">
+        <h3>Add a mod</h3>
+        <div class="field"><label>Mod name</label><input id="m-name" placeholder="e.g. Cold air intake" autocomplete="off"/></div>
+        <div class="two-col">
+          <div class="field"><label>Cost ($)</label><input id="m-cost" type="number" min="0" placeholder="0"/></div>
+          <div class="field"><label>Category</label>
+            <select id="m-cat">
+              <option>Engine</option><option>Exhaust</option><option>Suspension</option>
+              <option>Wheels</option><option>Exterior</option><option>Interior</option>
+              <option>Brakes</option><option>Turbo/Boost</option><option>Electronics</option><option>Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="field"><label>Notes (optional)</label><textarea id="m-note" rows="3" placeholder="Brand, part number, install tips…"></textarea></div>
+        <button class="add-btn" id="add-mod-btn" onclick="addMod()">+ Add mod</button>
+      </div>
+    </div>
+
+    <div class="screen" id="screen-builds">
+      <div class="sec-label">Your builds</div>
+      <div id="builds-list"></div>
+      <div class="add-build-form">
+        <div class="sec-label" style="margin-bottom:10px;">Add a car</div>
+        <input id="new-car" placeholder="e.g. 2020 Subaru WRX" autocomplete="off"/>
+        <button class="add-build-btn" onclick="addCar()">+ Add build</button>
+      </div>
+    </div>
+
+    <div class="screen" id="screen-account">
+      <div id="acct-free">
+        <div class="upgrade-banner">
+          <h3>Upgrade to Pro</h3>
+          <p>Unlock unlimited builds, unlimited mods, PDF export, share links, and cloud sync.</p>
+          <div class="price-row"><span class="price-big">$12</span><span class="price-per">/ month</span></div>
+          <button class="upgrade-banner-btn" onclick="showUpgrade()">Start 7-day free trial →</button>
+          <div class="trial-note">Card required · Cancel anytime</div>
+        </div>
+        <div class="sec-label">Free plan limits</div>
+        <div class="free-limits" id="free-limits-el"></div>
+        <div style="text-align:center;margin-bottom:16px;">
+          <button onclick="pollForPro()" style="background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;text-decoration:underline;font-family:'DM Sans',sans-serif;">Already paid? Tap here</button>
+        </div>
+      </div>
+      <div id="acct-pro" style="display:none;">
+        <div class="pro-active-card">
+          <h3>Pro Active</h3>
+          <p>You have full access to everything ModStack offers.</p>
+          <div class="pro-perks">
+            <div class="pro-perk">Unlimited builds</div>
+            <div class="pro-perk">Unlimited mods</div>
+            <div class="pro-perk">PDF export</div>
+            <div class="pro-perk">Share links</div>
+          </div>
+        </div>
+      </div>
+      <div class="sec-label">Actions</div>
+      <div class="account-section">
+        <div class="account-row" onclick="requirePro(doPrint)">
+          <span class="account-row-label">Export build as PDF</span>
+          <span class="account-row-val" id="pdf-lock">🔒 Pro only</span>
+        </div>
+        <div class="account-row" onclick="requirePro(showShareModal)">
+          <span class="account-row-label">Share build link</span>
+          <span class="account-row-val" id="share-lock">🔒 Pro only</span>
+        </div>
+      </div>
+      <div class="sec-label">Account</div>
+      <div class="account-section">
+        <div class="account-row" style="cursor:default;">
+          <span class="account-row-label">Email</span>
+          <span class="account-row-val" id="acct-email" style="font-size:12px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+        </div>
+        <div class="account-row" onclick="doLogout()">
+          <span class="account-row-label" style="color:#e74c3c;">Sign out</span>
+          <span class="account-row-val">→</span>
+        </div>
+      </div>
+      <div class="sec-label">About</div>
+      <div class="account-section">
+        <div class="account-row" style="cursor:default;"><span class="account-row-label">Version</span><span class="account-row-val">1.0.0</span></div>
+      </div>
+    </div>
+
+    <!-- CHAT SCREEN -->
+    <div class="screen" id="screen-chat">
+      <div id="chat-locked" style="display:none;">
+        <div class="empty-state">
+          <div class="empty-icon">🤖</div>
+          <h3>Pro feature</h3>
+          <p>The AI parts advisor is exclusive to Pro members. Get expert advice on mods, parts, and builds.</p>
+          <button onclick="showUpgrade()" style="background:var(--red);border:none;color:#fff;padding:12px 28px;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;margin-top:8px;font-family:'DM Sans',sans-serif;">Upgrade to Pro →</button>
+        </div>
+      </div>
+      <div id="chat-active" style="display:none;flex-direction:column;height:calc(100dvh - 120px - var(--safe-bottom));">
+        <div style="margin-bottom:14px;">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;color:#1a9e69;">AI Parts Advisor</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px;">Ask about parts, mods, compatibility, and builds</div>
+        </div>
+        <div id="chat-messages" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding-bottom:8px;scrollbar-width:none;-webkit-overflow-scrolling:touch;"></div>
+        <div style="display:flex;gap:8px;padding-top:12px;border-top:1px solid var(--border);margin-top:8px;">
+          <input id="chat-input" placeholder="e.g. What exhaust fits a 2022 WRX?" style="flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--white);padding:12px 14px;border-radius:10px;font-size:14px;transition:border-color .2s;" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat();}"/>
+          <button onclick="sendChat()" id="chat-send" style="background:#1a9e69;border:none;color:#fff;padding:12px 18px;border-radius:10px;cursor:pointer;font-size:18px;transition:background .15s,transform .1s;flex-shrink:0;">↑</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="bottom-nav" id="bottom-nav">
+    <button class="nav-item active" id="nav-home" onclick="goScreen('home')"><span class="nav-icon">🏠</span><span>Home</span></button>
+    <button class="nav-item" id="nav-add" onclick="goScreen('add')"><span class="nav-icon">➕</span><span>Add mod</span></button>
+    <button class="nav-item" id="nav-builds" onclick="goScreen('builds')"><span class="nav-icon">🚗</span><span>Builds</span></button>
+    <button class="nav-item" id="nav-chat" onclick="goScreen('chat')"><span class="nav-icon">🤖</span><span>AI Advisor</span></button>
+    <button class="nav-item" id="nav-account" onclick="goScreen('account')"><span class="nav-icon">👤</span><span>Account</span></button>
+  </div>
+</div>
+
+<div class="overlay" id="upgrade-overlay" style="display:none;">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h3F>Upgrade to Pro</h3>
+    <p>Build without limits. Choose your plan.</p>
+    <!-- Plan toggle -->
+    <div style="display:flex;background:var(--surface2);border-radius:10px;padding:4px;margin-bottom:20px;gap:4px;">
+      <button id="toggle-monthly" onclick="selectPlan('monthly')" style="flex:1;padding:10px;border-radius:8px;border:none;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;background:var(--red);color:#fff;font-family:'DM Sans',sans-serif;">Monthly</button>
+      <button id="toggle-yearly" onclick="selectPlan('yearly')" style="flex:1;padding:10px;border-radius:8px;border:none;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;">Yearly <span style="font-size:10px;background:rgba(26,158,105,.2);color:#1a9e69;padding:2px 6px;border-radius:4px;margin-left:4px;">Save 17%</span></button>
+    </div>
+    <!-- Price display -->
+    <div id="plan-price-display" style="text-align:center;margin-bottom:20px;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:52px;line-height:1;color:var(--red);" id="plan-price-amount">$12</div>
+      <div style="font-size:13px;color:var(--muted);margin-top:4px;" id="plan-price-period">per month · 7-day free trial</div>
+    </div>
+    <div class="pro-features">
+      <div class="pro-feat-row"><span>✓</span><span>Unlimited car builds</span></div>
+      <div class="pro-feat-row"><span>✓</span><span>Unlimited mods per build</span></div>
+      <div class="pro-feat-row"><span>✓</span><span>PDF export</span></div>
+      <div class="pro-feat-row"><span>✓</span><span>Share build links</span></div>
+      <div class="pro-feat-row"><span>✓</span><span>AI parts advisor (Pro exclusive)</span></div>
+      <div class="pro-feat-row"><span>✓</span><span>Cloud sync across all devices</span></div>
+    </div>
+    <div class="sheet-btns">
+      <button class="sheet-btn sheet-btn-primary" id="stripe-go-btn" onclick="goStripe()">Start 7-day free trial →</button>
+      <button class="sheet-btn sheet-btn-secondary" onclick="closeSheets()">Maybe later</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="share-overlay" style="display:none;">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h3>Share your build</h3>
+    <p>Anyone with this link can view your build in read-only mode.</p>
+    <div class="share-url-box" id="share-url-text"></div>
+    <div class="sheet-btns">
+      <button class="sheet-btn sheet-btn-primary" id="copy-btn" onclick="copyShareLink()">Copy link</button>
+      <button class="sheet-btn sheet-btn-secondary" onclick="closeSheets()">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL='https://axzxsxdpahnqivnbbysf.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF4enhzeGRwYWhucWl2bmJieXNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0NDM3MjIsImV4cCI6MjA5MTAxOTcyMn0.vvJrFlkoyEMaSwXt3JbG97L62YS0pcxPKPS6G7Qf0Ns';
+// Replace these with your actual Stripe payment links
+// Both links must have success redirect: https://YOURDOMAIN/app.html?upgraded=1
+const STRIPE_MONTHLY='https://buy.stripe.com/5kQ6oA81AdrA0dicov0VO00';
+const STRIPE_YEARLY='https://buy.stripe.com/9B67sE5Tsbjse4888f0VO01';
+const FREE_CAR=1,FREE_MOD=10;
+const WELCOME_KEY='modstack_pro_welcomed';
+
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+let user=null,profile=null,cars=[],activeCar=null,filter='all';
+let pollInterval=null,pollCount=0;
+let selectedPlan='monthly'; // tracks which plan user picked
+let chatHistory=[]; // stores AI chat messages
+
+const $=id=>document.getElementById(id);
+
+async function init(){
+  const {data:{session}}=await sb.auth.getSession();
+  if(session){user=session.user;await loadApp();}
+  else{showAuth();}
+  sb.auth.onAuthStateChange(async(event,session)=>{
+    if(event==='SIGNED_IN'&&session){user=session.user;await loadApp();}
+    if(event==='SIGNED_OUT'){user=null;profile=null;cars=[];activeCar=null;filter='all';showAuth();}
+  });
+}
+
+function showAuth(){
+  $('loading').style.display='none';
+  $('auth-screen').style.display='flex';
+  $('app-shell').style.display='none';
+}
+
+function showLogin(){$('login-form').style.display='block';$('signup-form').style.display='none';}
+function showSignup(){$('signup-form').style.display='block';$('login-form').style.display='none';}
+
+async function doLogin(){
+  const email=$('login-email').value.trim();
+  const pass=$('login-password').value;
+  const err=$('login-error');const btn=$('login-btn');
+  err.style.display='none';
+  if(!email||!pass){showMsg(err,'Please enter your email and password.','error');return;}
+  btn.disabled=true;btn.textContent='Signing in…';
+  const {error}=await sb.auth.signInWithPassword({email,password:pass});
+  if(error){showMsg(err,error.message,'error');btn.disabled=false;btn.textContent='Sign in';}
+}
+
+async function doSignup(){
+  const email=$('signup-email').value.trim();
+  const pass=$('signup-password').value;
+  const err=$('signup-error');const btn=$('signup-btn');
+  err.style.display='none';
+  if(!email||!pass){showMsg(err,'Please fill in all fields.','error');return;}
+  if(pass.length<6){showMsg(err,'Password must be at least 6 characters.','error');return;}
+  btn.disabled=true;btn.textContent='Creating account…';
+  const {error}=await sb.auth.signUp({email,password:pass});
+  if(error){showMsg(err,error.message,'error');btn.disabled=false;btn.textContent='Create free account';}
+  else{showMsg(err,'Account created! Check your email to confirm, then sign in.','success');btn.disabled=false;btn.textContent='Create free account';}
+}
+
+function showMsg(el,msg,type){el.textContent=msg;el.className='auth-msg '+type;el.style.display='block';}
+
+async function doLogout(){
+  if(!confirm('Sign out of ModStack?'))return;
+  clearInterval(pollInterval);
+  user=null;profile=null;cars=[];activeCar=null;filter='all';
+  await sb.auth.signOut();
+  // Force a clean reload to clear any cached state
+  window.location.href=window.location.pathname;
+}
+
+async function loadApp(){
+  $('loading').style.display='flex';
+  $('auth-screen').style.display='none';
+  $('app-shell').style.display='none';
+  $('pro-welcome').style.display='none';
+  await loadProfile();
+  await loadCars();
+  $('loading').style.display='none';
+  $('app-shell').style.display='flex';
+  renderAll();
+  // ONLY check for upgrade flow if coming back from Stripe
+  const params=new URLSearchParams(window.location.search);
+  if(params.get('upgraded')==='1'){
+    window.history.replaceState({},'',window.location.pathname);
+    if(isPro()){
+      maybeShowWelcome();
+    } else {
+      startPolling();
+    }
+  }
+  // Do NOT show welcome on normal login — only after Stripe redirect
+}
+
+async function loadProfile(){
+  const {data,error}=await sb.from('profiles').select('*').eq('id',user.id).single();
+  if(!error&&data)profile=data;
+}
+
+async function loadCars(){
+  const {data:carsData}=await sb.from('cars').select('*').eq('user_id',user.id).order('created_at');
+  if(!carsData||carsData.length===0){cars=[];activeCar=null;return;}
+  const {data:modsData}=await sb.from('mods').select('*').eq('user_id',user.id).order('created_at');
+  cars=carsData.map(c=>({...c,mods:(modsData||[]).filter(m=>m.car_id===c.id)}));
+  if(!activeCar||!cars.find(c=>c.id===activeCar))activeCar=cars[0]?.id||null;
+}
+
+function isPro(){return profile?.is_pro===true;}
+function getActiveCar(){return cars.find(c=>c.id===activeCar)||null;}
+
+// ── ONE-TIME WELCOME SCREEN ──
+// Only shows once ever — stored in localStorage per user
+function maybeShowWelcome(){
+  if(!user)return;
+  const key=WELCOME_KEY+'_'+user.id;
+  if(!localStorage.getItem(key)){
+    localStorage.setItem(key,'1');
+    setTimeout(()=>showProWelcome(),400);
+  }
+}
+
+function showProWelcome(){
+  $('pro-welcome').style.display='flex';
+}
+
+function dismissWelcome(){
+  $('pro-welcome').style.display='none';
+  toast('Welcome to Pro! 🎉');
+  renderAll();
+}
+
+// ── POLLING — only runs after returning from Stripe ──
+// NEVER grants Pro directly — only reads from database
+// Pro is only set by the Stripe webhook in Supabase
+function startPolling(){
+  $('upgrading-screen').style.display='flex';
+  pollCount=0;
+  clearInterval(pollInterval);
+  pollInterval=setInterval(async()=>{
+    pollCount++;
+    await loadProfile();
+    if(isPro()){
+      clearInterval(pollInterval);
+      $('upgrading-screen').style.display='none';
+      renderAll();
+      maybeShowWelcome();
+      return;
+    }
+    if(pollCount>=30){ // 60 seconds
+      clearInterval(pollInterval);
+      $('upgrading-screen').style.display='none';
+      renderAll();
+      // Show helpful message
+      $('pro-check-bar').style.display='block';
+      toast('Payment received — Pro activates within 1 minute. Tap "Activate Pro" to check.',6000);
+    }
+  },2000);
+}
+
+// Manual refresh — only reads database, never writes
+async function pollForPro(){
+  toast('Checking payment status…');
+  await loadProfile();
+  if(isPro()){
+    $('pro-check-bar').style.display='none';
+    renderAll();
+    maybeShowWelcome();
+  } else {
+    // Start background polling
+    startPolling();
+  }
+}
+
+// ── PRO THEME ──
+function applyProTheme(pro){
+  pro?$('topbar').classList.add('is-pro'):$('topbar').classList.remove('is-pro');
+  pro?$('bottom-nav').classList.add('is-pro'):$('bottom-nav').classList.remove('is-pro');
+  ['sc1','sc2','sc3','sc4'].forEach(id=>{
+    const el=$(id);if(el)pro?el.classList.add('pro-card'):el.classList.remove('pro-card');
+  });
+  const bc=$('budget-card');if(bc)pro?bc.classList.add('pro-card'):bc.classList.remove('pro-card');
+  const pf=$('prog-fill');if(pf)pro?pf.classList.add('pro-fill'):pf.classList.remove('pro-fill');
+  const ab=$('add-mod-btn');if(ab)pro?ab.classList.add('pro-btn'):ab.classList.remove('pro-btn');
+}
+
+function renderAll(){
+  renderChip();
+  applyProTheme(isPro());
+  renderHome();
+  renderBuilds();
+  renderAccount();
+}
+
+function renderChip(){
+  const chip=$('plan-chip');const pro=isPro();
+  if(pro){chip.textContent='● PRO';chip.classList.add('pro');}
+  else{chip.textContent='FREE';chip.classList.remove('pro');}
+  const email=$('acct-email');if(email)email.textContent=user?.email||'';
+}
+
+function handleChipClick(){if(!isPro())showUpgrade();}
+
+function goScreen(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  $('screen-'+name).classList.add('active');
+  $('nav-'+name).classList.add('active');
+  $('scroll-area').scrollTop=0;
+  if(name==='home')renderHome();
+  if(name==='builds')renderBuilds();
+  if(name==='account')renderAccount();
+  if(name==='chat')renderChat();
+}
+
+// ── AI CHAT ──
+function renderChat(){
+  const pro=isPro();
+  $('chat-locked').style.display=pro?'none':'block';
+  $('chat-active').style.display=pro?'flex':'none';
+  if(pro&&chatHistory.length===0){
+    // Show welcome message
+    addChatMessage('ai',`Hey! I'm your AI parts advisor. Tell me about your car and what you're trying to achieve — I'll help you find the best parts and mods for your build.\n\nFor example: *"I have a 2022 Subaru WRX and want to add about 50whp"* or *"What suspension upgrades work best for daily driving a Mustang GT?"*`);
+  }
+}
+
+function addChatMessage(role,text){
+  const isAi=role==='ai';
+  const msg={role,text,id:Date.now()};
+  chatHistory.push(msg);
+  const el=$('chat-messages');
+  if(!el)return;
+  const div=document.createElement('div');
+  div.style.cssText=`display:flex;${isAi?'':'justify-content:flex-end;'}animation:slideUp .3s ease;`;
+  div.innerHTML=`<div style="
+    max-width:85%;
+    background:${isAi?'var(--surface)':'#1a9e69'};
+    border:${isAi?'1px solid var(--border)':'none'};
+    border-radius:${isAi?'4px 14px 14px 14px':'14px 4px 14px 14px'};
+    padding:12px 14px;
+    font-size:14px;
+    line-height:1.6;
+    color:${isAi?'var(--white)':'#fff'};
+    white-space:pre-wrap;
+  ">${esc(text).replace(/\*([^*]+)\*/g,'<em>$1</em>')}</div>`;
+  el.appendChild(div);
+  el.scrollTop=el.scrollHeight;
+}
+
+function addTypingIndicator(){
+  const el=$('chat-messages');if(!el)return;
+  const div=document.createElement('div');
+  div.id='typing-indicator';
+  div.style.cssText='display:flex;animation:fadeIn .3s ease;';
+  div.innerHTML=`<div style="background:var(--surface);border:1px solid var(--border);border-radius:4px 14px 14px 14px;padding:12px 16px;display:flex;gap:4px;align-items:center;">
+    <span style="width:6px;height:6px;background:#555;border-radius:50%;animation:dotPulse 1.2s ease infinite;display:inline-block;"></span>
+    <span style="width:6px;height:6px;background:#555;border-radius:50%;animation:dotPulse 1.2s .2s ease infinite;display:inline-block;"></span>
+    <span style="width:6px;height:6px;background:#555;border-radius:50%;animation:dotPulse 1.2s .4s ease infinite;display:inline-block;"></span>
+  </div>`;
+  el.appendChild(div);
+  el.scrollTop=el.scrollHeight;
+}
+
+function removeTypingIndicator(){
+  const t=$('typing-indicator');if(t)t.remove();
+}
+
+async function sendChat(){
+  if(!isPro())return;
+  const input=$('chat-input');
+  const msg=input.value.trim();
+  if(!msg)return;
+  input.value='';
+  const btn=$('chat-send');
+  btn.disabled=true;btn.style.opacity='.5';
+
+  addChatMessage('user',msg);
+  addTypingIndicator();
+
+  // Build context from user's active build
+  const car=getActiveCar();
+  let buildContext='';
+  if(car){
+    const mods=car.mods.map(m=>`${m.name} (${m.category}, ${m.status})`).join(', ');
+    buildContext=`\n\nUser's current build: ${car.name}, budget $${car.budget}. Current mods: ${mods||'none yet'}.`;
+  }
+
+  // Build message history for API
+  const messages=chatHistory.slice(-10).map(m=>({
+    role:m.role==='ai'?'assistant':'user',
+    content:m.text
+  }));
+
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system:`You are an expert AI car parts advisor for ModStack, a car build tracking app. You help car enthusiasts find the best parts, mods, and upgrades for their specific vehicles.
+
+Your expertise includes:
+- Engine modifications (intakes, exhausts, turbos, superchargers, tuning)
+- Suspension and handling (coilovers, sway bars, alignment)
+- Wheels and tires (sizing, fitment, brands)
+- Brakes (pads, rotors, big brake kits)
+- Exterior mods (body kits, wings, wraps)
+- Interior upgrades
+- Electronics and tuning
+
+Always give specific part recommendations with brand names and approximate prices. Be direct and practical. If you don't know the exact fitment, say so and recommend they verify compatibility. Keep responses concise but helpful — under 200 words unless detail is essential.${buildContext}`,
+        messages
+      })
+    });
+    const data=await res.json();
+    removeTypingIndicator();
+    const reply=data.content?.[0]?.text||'Sorry, I had trouble responding. Try again.';
+    addChatMessage('ai',reply);
+  } catch(e){
+    removeTypingIndicator();
+    addChatMessage('ai','Connection error. Please check your internet and try again.');
+  }
+
+  btn.disabled=false;btn.style.opacity='1';
+  $('chat-input').focus();
+}
+
+function renderHome(){
+  const car=getActiveCar();
+  $('home-empty').style.display=car?'none':'flex';
+  $('home-content').style.display=car?'block':'none';
+  if(!car)return;
+  renderCarTabs();
+  $('budget-in').value=car.budget||5000;
+  renderStats();renderMods();
+}
+
+function renderCarTabs(){
+  const pro=isPro();
+  $('car-tabs').innerHTML=cars.map(c=>
+    `<button class="car-tab${c.id===activeCar?(pro?' active pro-tab':' active'):''}" onclick="switchCar(${c.id})">${esc(c.name)}</button>`
+  ).join('');
+}
+
+function switchCar(id){activeCar=id;renderHome();}
+
+function renderStats(){
+  const car=getActiveCar();if(!car)return;
+  const budget=parseFloat(car.budget)||0;
+  const inst=car.mods.filter(m=>m.status==='installed');
+  const spent=inst.reduce((s,m)=>s+parseFloat(m.cost||0),0);
+  const planned=car.mods.reduce((s,m)=>s+parseFloat(m.cost||0),0);
+  const pct=budget>0?Math.min(100,Math.round(planned/budget*100)):0;
+  $('s-total').textContent=car.mods.length;
+  $('s-done').textContent=inst.length;
+  $('s-planned').textContent='$'+planned.toLocaleString();
+  $('s-spent').textContent='$'+spent.toLocaleString();
+  $('prog-fill').style.width=pct+'%';
+  $('bm-left').textContent='$'+planned.toLocaleString()+' planned';
+  $('bm-rem').textContent='$'+Math.max(0,budget-planned).toLocaleString()+' left';
+}
+
+function renderMods(){
+  const car=getActiveCar();if(!car)return;
+  const f=filter;
+  const mods=f==='all'?car.mods:car.mods.filter(m=>m.status===f);
+  const el=$('mod-list');
+  if(mods.length===0){el.innerHTML=`<div class="no-mods">No ${f==='all'?'':f+' '}mods yet</div>`;return;}
+  el.innerHTML=mods.map((m,i)=>{
+    const bc=m.status==='installed'?'b-installed':m.status==='planned'?'b-planned':'b-progress';
+    const bl=m.status==='in-progress'?'in progress':m.status;
+    return `<div class="mod-card" style="animation-delay:${i*0.04}s">
+      <div class="mod-info">
+        <div class="mod-name">${esc(m.name)}</div>
+        <div class="mod-cat">${esc(m.category)}</div>
+        ${m.note?`<div class="mod-note-txt">${esc(m.note)}</div>`:''}
+      </div>
+      <div class="mod-right">
+        <button class="mod-del" onclick="deleteMod(${m.id})">×</button>
+        <div class="mod-cost">$${parseFloat(m.cost||0).toLocaleString()}</div>
+        <button class="badge ${bc}" onclick="cycleStatus(${m.id},'${m.status}')">${bl}</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderBuilds(){
+  const el=$('builds-list');const pro=isPro();
+  if(cars.length===0){el.innerHTML='<div class="no-mods" style="margin-bottom:10px;">No builds yet — add one below</div>';return;}
+  el.innerHTML=cars.map((c,i)=>{
+    const spent=c.mods.filter(m=>m.status==='installed').reduce((s,m)=>s+parseFloat(m.cost||0),0);
+    const isActive=c.id===activeCar;
+    return `<div class="build-card${isActive?(pro?' active-build pro-active':' active-build'):''}" style="animation-delay:${i*0.05}s" onclick="selectBuild(${c.id})">
+      <div>
+        <div class="build-card-name">${esc(c.name)}</div>
+        <div class="build-card-meta">${c.mods.length} mods · $${spent.toLocaleString()} spent</div>
+      </div>
+      <div class="build-card-right">
+        ${isActive?`<span style="font-size:10px;color:${pro?'#1a9e69':'var(--red)'};font-family:'DM Mono',monospace;letter-spacing:1px;">ACTIVE</span>`:''}
+        <button class="build-del" onclick="deleteCar(${c.id},event)">×</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderAccount(){
+  const pro=isPro();
+  $('acct-free').style.display=pro?'none':'block';
+  $('acct-pro').style.display=pro?'block':'none';
+  renderChip();
+  const pl=$('pdf-lock');const sl=$('share-lock');
+  if(pl)pl.textContent=pro?'→':'🔒 Pro only';
+  if(sl)sl.textContent=pro?'→':'🔒 Pro only';
+  if(!pro){
+    const car=getActiveCar();
+    const mc=car?car.mods.length:0;
+    $('free-limits-el').innerHTML=`
+      <div class="limit-row"><span>Builds</span><span>${cars.length} / ${FREE_CAR}</span></div>
+      <div class="limit-bar"><div class="limit-bar-fill" style="width:${Math.min(100,Math.round(cars.length/FREE_CAR*100))}%"></div></div>
+      <div class="limit-row"><span>Mods on active build</span><span>${mc} / ${FREE_MOD}</span></div>
+      <div class="limit-bar"><div class="limit-bar-fill" style="width:${Math.min(100,Math.round(mc/FREE_MOD*100))}%"></div></div>
+    `;
+  }
+}
+
+async function addCar(){
+  const v=$('new-car').value.trim();if(!v)return;
+  if(!isPro()&&cars.length>=FREE_CAR){showUpgrade();return;}
+  const {data,error}=await sb.from('cars').insert({user_id:user.id,name:v,budget:5000}).select().single();
+  if(error){toast('Error adding car');return;}
+  $('new-car').value='';
+  cars.push({...data,mods:[]});activeCar=data.id;
+  renderBuilds();goScreen('home');
+}
+
+async function selectBuild(id){activeCar=id;renderBuilds();goScreen('home');}
+
+async function deleteCar(id,e){
+  e.stopPropagation();
+  if(!confirm('Remove this car and all its mods?'))return;
+  await sb.from('cars').delete().eq('id',id);
+  cars=cars.filter(c=>c.id!==id);
+  activeCar=cars.length?cars[0].id:null;
+  renderBuilds();renderHome();
+}
+
+async function addMod(){
+  const car=getActiveCar();
+  if(!car){goScreen('builds');return;}
+  if(!isPro()&&car.mods.length>=FREE_MOD){showUpgrade();return;}
+  const name=$('m-name').value.trim();
+  const cost=parseFloat($('m-cost').value)||0;
+  const category=$('m-cat').value;
+  const note=$('m-note').value.trim();
+  if(!name){$('m-name').focus();return;}
+  const btn=$('add-mod-btn');
+  btn.disabled=true;btn.textContent='Adding…';
+  const {data,error}=await sb.from('mods').insert({user_id:user.id,car_id:car.id,name,cost,category,status:'planned',note}).select().single();
+  btn.disabled=false;btn.textContent='+ Add mod';
+  if(error){toast('Error adding mod');return;}
+  car.mods.push(data);
+  $('m-name').value='';$('m-cost').value='';$('m-note').value='';
+  toast('Mod added!');goScreen('home');
+}
+
+async function cycleStatus(modId,currentStatus){
+  const cycle=['planned','in-progress','installed'];
+  const next=cycle[(cycle.indexOf(currentStatus)+1)%cycle.length];
+  await sb.from('mods').update({status:next}).eq('id',modId);
+  for(const c of cars){const mod=c.mods.find(m=>m.id===modId);if(mod){mod.status=next;break;}}
+  renderHome();
+}
+
+async function deleteMod(modId){
+  if(!confirm('Remove this mod?'))return;
+  await sb.from('mods').delete().eq('id',modId);
+  for(const c of cars){c.mods=c.mods.filter(m=>m.id!==modId);}
+  renderHome();
+}
+
+async function onBudgetChange(){
+  const car=getActiveCar();if(!car)return;
+  const budget=parseFloat($('budget-in').value)||0;
+  car.budget=budget;
+  await sb.from('cars').update({budget}).eq('id',car.id);
+  renderStats();
+}
+
+function setFilter(f,el){
+  filter=f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');renderMods();
+}
+
+function requirePro(fn){if(isPro()){fn();}else{showUpgrade();}}
+function showUpgrade(){selectedPlan='monthly';updatePlanToggle();$('upgrade-overlay').style.display='flex';}
+function closeSheets(){$('upgrade-overlay').style.display='none';$('share-overlay').style.display='none';}
+
+function selectPlan(plan){
+  selectedPlan=plan;
+  updatePlanToggle();
+}
+
+function updatePlanToggle(){
+  const monthly=$('toggle-monthly');
+  const yearly=$('toggle-yearly');
+  const amount=$('plan-price-amount');
+  const period=$('plan-price-period');
+  const btn=$('stripe-go-btn');
+  if(!monthly)return;
+  if(selectedPlan==='yearly'){
+    monthly.style.background='transparent';monthly.style.color='var(--muted)';
+    yearly.style.background='#1a9e69';yearly.style.color='#fff';
+    amount.textContent='$119';amount.style.color='#1a9e69';
+    period.textContent='per year · saves $25 · 7-day free trial';
+    btn.textContent='Start yearly free trial →';
+  } else {
+    monthly.style.background='var(--red)';monthly.style.color='#fff';
+    yearly.style.background='transparent';yearly.style.color='var(--muted)';
+    amount.textContent='$12';amount.style.color='var(--red)';
+    period.textContent='per month · 7-day free trial';
+    btn.textContent='Start 7-day free trial →';
+  }
+}
+
+function goStripe(){
+  closeSheets();
+  const link=selectedPlan==='yearly'?STRIPE_YEARLY:STRIPE_MONTHLY;
+  const email=user?.email||'';
+  let url=link;
+  if(email)url+=(url.includes('?')?'&':'?')+'prefilled_email='+encodeURIComponent(email);
+  window.location.href=url;
+}
+
+function showShareModal(){
+  const car=getActiveCar();if(!car)return;
+  const data=encodeURIComponent(JSON.stringify({car:car.name,budget:car.budget,mods:car.mods}));
+  const url=window.location.origin+'/app.html?build='+data;
+  $('share-url-text').textContent=url.length>300?url.substring(0,300)+'…':url;
+  $('share-overlay').style.display='flex';
+}
+
+function copyShareLink(){
+  const car=getActiveCar();if(!car)return;
+  const data=encodeURIComponent(JSON.stringify({car:car.name,budget:car.budget,mods:car.mods}));
+  const url=window.location.origin+'/app.html?build='+data;
+  navigator.clipboard.writeText(url).then(()=>{
+    const btn=$('copy-btn');btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy link',2000);
+  });
+}
+
+function doPrint(){
+  const car=getActiveCar();if(!car)return;
+  const spent=car.mods.filter(m=>m.status==='installed').reduce((s,m)=>s+parseFloat(m.cost||0),0);
+  const rows=car.mods.map(m=>`<tr><td>${esc(m.name)}</td><td>${esc(m.category)}</td><td>$${parseFloat(m.cost||0).toLocaleString()}</td><td>${m.status}</td><td>${esc(m.note||'—')}</td></tr>`).join('');
+  const w=window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html><head><title>${esc(car.name)} — ModStack</title>
+  <style>body{font-family:sans-serif;padding:2rem;max-width:800px;margin:0 auto;color:#111;}
+  h1{font-size:26px;font-weight:700;margin-bottom:4px;}.sub{color:#888;font-size:13px;margin-bottom:1.5rem;}
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:2rem;}
+  .box{background:#f5f5f5;padding:12px;border-radius:8px;}.bl{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;}.bv{font-size:20px;font-weight:700;}
+  table{width:100%;border-collapse:collapse;font-size:13px;}th{text-align:left;padding:10px;border-bottom:2px solid #eee;font-size:11px;text-transform:uppercase;color:#888;}
+  td{padding:10px;border-bottom:1px solid #f0f0f0;vertical-align:top;}</style></head><body>
+  <h1>${esc(car.name)}</h1><div class="sub">ModStack Pro · ${new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})}</div>
+  <div class="grid">
+    <div class="box"><div class="bl">Total mods</div><div class="bv">${car.mods.length}</div></div>
+    <div class="box"><div class="bl">Installed</div><div class="bv">${car.mods.filter(m=>m.status==='installed').length}</div></div>
+    <div class="box"><div class="bl">Amount spent</div><div class="bv">$${spent.toLocaleString()}</div></div>
+    <div class="box"><div class="bl">Budget</div><div class="bv">$${parseFloat(car.budget||0).toLocaleString()}</div></div>
+  </div>
+  <table><thead><tr><th>Mod</th><th>Category</th><th>Cost</th><th>Status</th><th>Notes</th></tr></thead>
+  <tbody>${rows}</tbody></table></body></html>`);
+  w.document.close();setTimeout(()=>w.print(),400);
+}
+
+let toastTimer=null;
+function toast(msg,duration=2500){
+  const t=$('toast');t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),duration);
+}
+
+function esc(str){
+  if(!str)return'';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js'));
+}
+
+init();
+</script>
+</body>
+</html>
