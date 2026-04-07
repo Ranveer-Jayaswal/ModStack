@@ -23,125 +23,361 @@
             --safe-bottom: env(safe-area-inset-bottom, 0px);
             --accent: var(--red);
         }
-        body.pro { --accent: var(--green); }
-        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-        html, body { height: 100%; overscroll-behavior: none; background: var(--black); color: var(--white); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-        .loading-screen { position: fixed; inset: 0; z-index: 9999; background: var(--black); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; transition: opacity 0.5s; }
-        .logo-img { width: 80px; height: 80px; object-fit: contain; animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(0.95); opacity: 0.8; } }
-        #app { display: none; height: 100%; flex-direction: column; opacity: 0; transition: opacity 0.3s; }
-        header { padding: 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--surface2); background: var(--surface); transition: background 0.5s; }
-        body.pro header { background: #0c1a0c; border-bottom-color: #1a3a1a; }
-        .logo-wrap { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 20px; letter-spacing: -0.5px; }
-        .logo-wrap img { width: 28px; height: 28px; }
-        .plan-badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 700; text-transform: uppercase; background: var(--accent); color: white; }
-        nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface); border-top: 1px solid var(--surface2); padding-bottom: var(--safe-bottom); display: flex; justify-content: space-around; z-index: 100; transition: background 0.5s; }
-        body.pro nav { background: #0c1a0c; border-top-color: #1a3a1a; }
-        .nav-item { flex: 1; padding: 12px 0; display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text); font-size: 10px; font-weight: 600; text-decoration: none; transition: color 0.2s; }
-        .nav-item.active { color: var(--accent); }
-        .screen { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 100px; display: none; animation: slideUp 0.4s cubic-bezier(0,0,0.2,1); }
-        .screen.active { display: block; }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000; display: none; align-items: flex-end; backdrop-filter: blur(4px); }
-        .sheet { width: 100%; background: var(--surface); border-radius: 20px 20px 0 0; padding: 24px; padding-bottom: calc(24px + var(--safe-bottom)); transform: translateY(100%); transition: transform 0.4s cubic-bezier(0,0,0.2,1); }
-        .overlay.active { display: flex; }
-        .overlay.active .sheet { transform: translateY(0); }
-        .btn { width: 100%; padding: 16px; border-radius: 12px; border: none; font-weight: 700; font-size: 16px; margin-bottom: 12px; cursor: pointer; transition: transform 0.1s; }
-        .btn:active { transform: scale(0.98); }
-        .btn-primary { background: var(--accent); color: white; }
-        .btn-secondary { background: var(--surface2); color: var(--white); }
-        .toggle-wrap { display: flex; background: var(--surface2); border-radius: 12px; padding: 4px; margin-bottom: 20px; }
-        .toggle-btn { flex: 1; padding: 8px; border-radius: 8px; border: none; background: transparent; color: var(--text); font-weight: 700; cursor: pointer; transition: all 0.2s; }
-        .toggle-btn.active { background: var(--surface); color: var(--white); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
-        #welcome-pro { position: fixed; inset: 0; background: #0c1a0c; z-index: 2000; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 40px; text-align: center; }
-        #welcome-pro .logo-img { margin-bottom: 30px; filter: drop-shadow(0 0 20px var(--green)); }
-        #polling-overlay { position: fixed; inset: 0; background: var(--black); z-index: 3000; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 20px; text-align: center; padding: 20px; }
+
+        body.pro {
+            --accent: var(--green);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            height: 100%;
+            overscroll-behavior: none;
+            background: var(--black);
+            color: var(--white);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        .loading-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: var(--black);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            transition: opacity 0.5s;
+        }
+
+        .logo-img {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(0.95); opacity: 0.8; }
+        }
+
+        #app {
+            display: none;
+            height: 100%;
+            flex-direction: column;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        header {
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--surface2);
+            background: var(--surface);
+            transition: background 0.5s;
+        }
+
+        body.pro header {
+            background: #0c1a0c;
+            border-bottom-color: #1a3a1a;
+        }
+
+        .logo-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 800;
+            font-size: 20px;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-wrap img {
+            width: 28px;
+            height: 28px;
+        }
+
+        .plan-badge {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 700;
+            text-transform: uppercase;
+            background: var(--accent);
+            color: white;
+        }
+
+        nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--surface);
+            border-top: 1px solid var(--surface2);
+            padding-bottom: var(--safe-bottom);
+            display: flex;
+            justify-content: space-around;
+            z-index: 100;
+            transition: background 0.5s;
+        }
+
+        body.pro nav {
+            background: #0c1a0c;
+            border-top-color: #1a3a1a;
+        }
+
+        .nav-item {
+            flex: 1;
+            padding: 12px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: var(--text);
+            font-size: 10px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .nav-item.active {
+            color: var(--accent);
+        }
+
+        .screen {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            padding-bottom: 100px;
+            display: none;
+            animation: slideUp 0.4s cubic-bezier(0,0,0.2,1);
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            display: none;
+            align-items: flex-end;
+            backdrop-filter: blur(4px);
+        }
+
+        .sheet {
+            width: 100%;
+            background: var(--surface);
+            border-radius: 20px 20px 0 0;
+            padding: 24px;
+            padding-bottom: calc(24px + var(--safe-bottom));
+            transform: translateY(100%);
+            transition: transform 0.4s cubic-bezier(0,0,0.2,1);
+        }
+
+        .overlay.active {
+            display: flex;
+        }
+
+        .overlay.active .sheet {
+            transform: translateY(0);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--surface2);
+            color: var(--white);
+        }
+
+        .toggle-wrap {
+            display: flex;
+            background: var(--surface2);
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 20px;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            padding: 8px;
+            border-radius: 8px;
+            border: none;
+            background: transparent;
+            color: var(--text);
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .toggle-btn.active {
+            background: var(--surface);
+            color: var(--white);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        #welcome-pro {
+            position: fixed;
+            inset: 0;
+            background: #0c1a0c;
+            z-index: 2000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            text-align: center;
+        }
+
+        #welcome-pro .logo-img {
+            margin-bottom: 30px;
+            filter: drop-shadow(0 0 20px var(--green));
+        }
+
+        #polling-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--black);
+            z-index: 3000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            text-align: center;
+            padding: 20px;
+        }
     </style>
 </head>
 <body>
-    <div class="loading-screen" id="loader">
-        <img src="logo.png" class="logo-img">
+    <div id="loader" class="loading-screen">
+        <img src="logo.png" alt="ModStack" class="logo-img">
     </div>
 
     <div id="app">
         <header>
             <div class="logo-wrap">
-                <img src="logo.png">
+                <img src="logo.png" alt="ModStack">
                 <span>ModStack</span>
             </div>
             <div id="plan-badge" class="plan-badge">Free</div>
         </header>
 
-        <div id="home" class="screen active">
-            <h2>Welcome to ModStack</h2>
-            <p style="color: var(--text); margin-top: 10px;">The ultimate car build tracker.</p>
-        </div>
-
-        <div id="builds" class="screen">
-            <h2>Your Builds</h2>
-            <p style="color: var(--text); margin-top: 10px;">Add your cars and track your progress.</p>
-        </div>
-
-        <div id="chat" class="screen">
-            <h2>AI Advisor</h2>
-            <div id="chat-list" style="margin-top: 20px; height: 300px; overflow-y: auto;"></div>
-            <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <input type="text" id="chat-input" placeholder="Ask about car parts..." style="flex: 1; background: var(--surface2); border: none; padding: 12px; border-radius: 8px; color: white;">
-                <button onclick="sendChat()" style="background: var(--accent); border: none; padding: 12px 20px; border-radius: 8px; color: white; font-weight: 700;">Send</button>
+        <main id="main-content">
+            <div id="home" class="screen active">
+                <h2>Welcome to ModStack</h2>
+                <p style="color: var(--text); margin-top: 8px;">The ultimate car build tracker.</p>
             </div>
-        </div>
 
-        <div id="account" class="screen">
-            <h2>Account</h2>
-            <div style="background: var(--surface); padding: 20px; border-radius: 12px; margin-top: 20px; border: 1px solid var(--surface2);">
-                <div id="user-email" style="font-weight: 700; margin-bottom: 8px;"></div>
-                <div id="user-plan" style="color: var(--text); font-size: 14px; margin-bottom: 20px;">Free Plan</div>
+            <div id="builds" class="screen">
+                <h2>Your Builds</h2>
+                <p style="color: var(--text); margin-top: 8px;">Add your cars and track your progress.</p>
+            </div>
+
+            <div id="chat" class="screen">
+                <h2>AI Advisor</h2>
+                <div style="height: 300px; background: var(--surface2); border-radius: 12px; margin: 16px 0; padding: 16px;"></div>
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" id="chat-input" placeholder="Ask about car parts..." style="flex: 1; background: var(--surface2); border: none; padding: 12px; border-radius: 8px; color: white;">
+                    <button class="btn btn-primary" style="width: auto; margin: 0; padding: 0 20px;">Send</button>
+                </div>
+            </div>
+
+            <div id="account" class="screen">
+                <h2>Account</h2>
+                <div style="margin: 20px 0; padding: 20px; background: var(--surface); border-radius: 16px; border: 1px solid var(--surface2);">
+                    <p id="user-email" style="font-weight: 700; margin-bottom: 4px;"></p>
+                    <p id="user-plan" style="color: var(--text); font-size: 14px;"></p>
+                </div>
+                
                 <div id="pro-features" style="display: none;">
-                    <button class="btn btn-primary" onclick="goPortal()">Manage Billing / Cancel</button>
+                    <button onclick="goPortal()" class="btn btn-secondary">Manage Billing / Cancel</button>
                 </div>
+                
                 <div id="free-features">
-                    <button class="btn btn-primary" onclick="showUpgrade()">Upgrade to Pro</button>
+                    <button onclick="showUpgrade()" class="btn btn-primary">Upgrade to Pro</button>
                 </div>
-                <button class="btn btn-secondary" onclick="signOut()" style="margin-top: 10px;">Sign Out</button>
+                
+                <button onclick="signOut()" class="btn btn-secondary" style="margin-top: 20px; color: var(--red);">Sign Out</button>
             </div>
-        </div>
+        </main>
 
         <nav>
-            <a href="#" class="nav-item active" onclick="go('home')">Home</a>
-            <a href="#" class="nav-item" onclick="go('builds')">Builds</a>
-            <a href="#" class="nav-item" onclick="go('chat')">AI Chat</a>
-            <a href="#" class="nav-item" onclick="go('account')">Account</a>
+            <a href="#" onclick="go('home')" class="nav-item active">Home</a>
+            <a href="#" onclick="go('builds')" class="nav-item">Builds</a>
+            <a href="#" onclick="go('chat')" class="nav-item">AI Chat</a>
+            <a href="#" onclick="go('account')" class="nav-item">Account</a>
         </nav>
     </div>
 
-    <div class="overlay" id="upgrade-overlay">
+    <div id="upgrade-overlay" class="overlay" onclick="if(event.target === this) closeUpgrade()">
         <div class="sheet">
-            <h2>Upgrade to Pro</h2>
-            <p style="color: var(--text); margin: 12px 0 20px;">Unlock unlimited cars, mods, and AI advisor.</p>
+            <h2 style="margin-bottom: 8px;">Upgrade to Pro</h2>
+            <p style="color: var(--text); margin-bottom: 24px;">Unlock unlimited cars, mods, and AI advisor.</p>
+            
             <div class="toggle-wrap">
                 <button id="monthly-btn" class="toggle-btn active" onclick="setPlan('monthly')">Monthly</button>
                 <button id="yearly-btn" class="toggle-btn" onclick="setPlan('yearly')">Yearly (Save 20%)</button>
             </div>
-            <div style="font-size: 32px; font-weight: 800; margin-bottom: 24px;" id="price-display">$12<span style="font-size: 16px; color: var(--text); font-weight: 600;">/mo</span></div>
-            <button class="btn btn-primary" onclick="goStripe()">Start Free Trial</button>
-            <button class="btn btn-secondary" onclick="closeUpgrade()">Maybe Later</button>
+            
+            <div id="price-display" style="font-size: 32px; font-weight: 800; margin-bottom: 24px;">
+                $12<span style="font-size: 16px; color: var(--text); font-weight: 600;">/mo</span>
+            </div>
+            
+            <button onclick="goStripe()" class="btn btn-primary">Start Free Trial</button>
+            <button onclick="closeUpgrade()" class="btn btn-secondary">Maybe Later</button>
         </div>
     </div>
 
-    <div id="welcome-pro">
-        <img src="logo.png" class="logo-img">
-        <h1>Welcome to Pro 🎉</h1>
-        <p style="color: var(--text); margin-top: 10px;">You've unlocked the full potential of ModStack.</p>
-        <button class="btn btn-primary" onclick="closeWelcome()" style="margin-top: 30px; width: 200px;">Get Started</button>
+    <div id="welcome-pro" onclick="closeWelcome()">
+        <img src="logo.png" alt="ModStack" class="logo-img">
+        <h1 style="font-size: 32px; margin-bottom: 16px;">Welcome to Pro 🎉</h1>
+        <p style="color: var(--text); margin-bottom: 32px; line-height: 1.5;">You've unlocked the full potential of ModStack.</p>
+        <button class="btn btn-primary" style="max-width: 200px;">Get Started</button>
     </div>
 
     <div id="polling-overlay">
-        <img src="logo.png" class="logo-img">
-        <h2>Activating Pro...</h2>
-        <p id="polling-msg" style="color: var(--text);">Waiting for payment confirmation from Stripe.</p>
+        <img src="logo.png" alt="ModStack" class="logo-img" style="width: 40px; height: 40px;">
+        <h2 id="polling-msg">Activating Pro...</h2>
+        <p style="color: var(--text);">Waiting for payment confirmation from Stripe.</p>
     </div>
 
     <script>
+        // Kill service worker if it's acting up
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.getRegistrations().then(regs => {
                 for (let reg of regs) reg.unregister();
@@ -150,27 +386,39 @@
 
         const SB_URL = "https://axzxsxdpahnqivnbbysf.supabase.co";
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF4enhzeGRwYWhucWl2bmJieXNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0NDM3MjIsImV4cCI6MjA5MTAxOTcyMn0.vvJrFlkoyEMaSwXt3JbG97L62YS0pcxPKPS6G7Qf0Ns";
-        const client = supabase.createClient(SB_URL, SB_KEY);
-
+        
+        // Fixed: Use a different name for the client to avoid shadowing
+        const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
+        
         let user = null;
         let profile = null;
         let selectedPlan = 'monthly';
 
         async function init() {
-            const { data } = await client.auth.getSession();
-            user = data?.session?.user;
-            if (user) {
-                await loadProfile();
-                renderUI();
-                checkUpgradedParam();
-            } else {
-                window.location.href = 'index.html';
+            try {
+                const { data } = await supabaseClient.auth.getSession();
+                user = data?.session?.user;
+                if (user) {
+                    await loadProfile();
+                    renderUI();
+                    checkUpgradedParam();
+                } else {
+                    window.location.href = 'index.html';
+                }
+            } catch (e) {
+                console.error("Init failed:", e);
+            } finally {
+                showApp();
             }
-            showApp();
         }
 
         async function loadProfile() {
-            const { data, error } = await client.from('profiles').select('*').eq('id', user.id).single();
+            const { data, error } = await supabaseClient
+                .from('profiles')
+                .select('*')
+                .eq('id', user.id)
+                .single();
+            
             if (data) {
                 profile = data;
                 document.body.classList.toggle('pro', profile.is_pro);
@@ -193,19 +441,28 @@
             }
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(screen).classList.add('active');
+            
             document.querySelectorAll('.nav-item').forEach(n => {
                 n.classList.toggle('active', n.textContent.toLowerCase().includes(screen));
             });
         }
 
-        function showUpgrade() { document.getElementById('upgrade-overlay').classList.add('active'); }
-        function closeUpgrade() { document.getElementById('upgrade-overlay').classList.remove('active'); }
+        function showUpgrade() {
+            document.getElementById('upgrade-overlay').classList.add('active');
+        }
+
+        function closeUpgrade() {
+            document.getElementById('upgrade-overlay').classList.remove('active');
+        }
 
         function setPlan(plan) {
             selectedPlan = plan;
             document.getElementById('monthly-btn').classList.toggle('active', plan === 'monthly');
             document.getElementById('yearly-btn').classList.toggle('active', plan === 'yearly');
-            document.getElementById('price-display').innerHTML = plan === 'monthly' ? '$12<span style=\"font-size: 16px; color: var(--text); font-weight: 600;\">/mo</span>' : '$119<span style=\"font-size: 16px; color: var(--text); font-weight: 600;\">/yr</span>';
+            
+            document.getElementById('price-display').innerHTML = plan === 'monthly' 
+                ? '$12<span style="font-size: 16px; color: var(--text); font-weight: 600;">/mo</span>'
+                : '$119<span style="font-size: 16px; color: var(--text); font-weight: 600;">/yr</span>';
         }
 
         function goStripe() {
@@ -215,13 +472,20 @@
         }
 
         async function goPortal() {
-            const { data: { session } } = await client.auth.getSession();
-            const res = await fetch(SB_URL + "/functions/v1/create-portal-session", {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${session.access_token}` }
-            });
-            const { url } = await res.json();
-            if (url) window.location.href = url;
+            try {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                const res = await fetch(SB_URL + "/functions/v1/create-portal-session", {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${session.access_token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const { url } = await res.json();
+                if (url) window.location.href = url;
+            } catch (e) {
+                alert("Failed to open billing portal. Please try again.");
+            }
         }
 
         function checkUpgradedParam() {
@@ -234,15 +498,19 @@
         function startPolling() {
             const overlay = document.getElementById('polling-overlay');
             overlay.style.display = 'flex';
+            
             let attempts = 0;
             const interval = setInterval(async () => {
                 attempts++;
                 await loadProfile();
+                
                 if (profile?.is_pro) {
                     clearInterval(interval);
                     overlay.style.display = 'none';
                     showWelcome();
                     renderUI();
+                    // Clean URL
+                    window.history.replaceState({}, document.title, window.location.pathname);
                 } else if (attempts >= 30) {
                     clearInterval(interval);
                     document.getElementById('polling-msg').textContent = "Activation is taking longer than expected. Please refresh in a few minutes.";
@@ -258,10 +526,12 @@
             }
         }
 
-        function closeWelcome() { document.getElementById('welcome-pro').style.display = 'none'; }
+        function closeWelcome() {
+            document.getElementById('welcome-pro').style.display = 'none';
+        }
 
         async function signOut() {
-            await client.auth.signOut();
+            await supabaseClient.auth.signOut();
             localStorage.clear();
             window.location.href = 'index.html';
         }
