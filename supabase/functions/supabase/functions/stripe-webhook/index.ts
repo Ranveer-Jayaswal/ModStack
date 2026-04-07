@@ -53,3 +53,75 @@ serve(async (req) => {
     return new Response(`Webhook Error: ${err.message}`, { status: 400 })
   }
 })
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
+import Stripe from "https://esm.sh/stripe@12.0.0?target=deno"
+
+const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") ?? "", {
+  apiVersion: "2022-11-15",
+  httpClient: Stripe.createFetchHttpClient(),
+})
+
+const supabase = createClient(
+  Deno.env.get("SUPABASE_URL") ?? "",
+  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+)
+
+serve(async (req) => {
+  const signature = req.headers.get("stripe-signature")
+  if (!signature) return new Response("No signature", { status: 400 })
+
+  try {
+    const body = await req.text()
+    const event = await stripe.webhooks.constructEventAsync(
+      body,
+      signature,
+      Deno.env.get("STRIPE_WEBHOOK_SECRET") ?? ""
+    )
+
+    const session = event.data.object as any
+    const customerId = session.customer as string
+    const email = session.customer_details?.email || session.email
+
+    if (!email && !customerId) {
+        return new Response("Missing identity info", { status: 400 })
+    }
+
+    // Find profile by email or stripe_customer_id
+    let profileQuery = supabase.from("profiles").select("id")
+    if (email) {
+        profileQuery = profileQuery.ilike("email", email)
+    } else {
+        profileQuery = profileQuery.eq("stripe_customer_id", customerId)
+    }
+    
+    const { data: profile } = await profileQuery.single()
+
+    if (!profile) return new Response("User not found", { status: 404 })
+
+    let isPro = false
+    const activeEvents = ["checkout.session.completed", "invoice.payment_succeeded", "customer.subscription.created", "customer.subscription.updated"]
+    
+    if (activeEvents.includes(event.type)) {
+      // Check if subscription is actually active if it's an update
+      if (event.type === "customer.subscription.updated") {
+          isPro = session.status === "active" || session.status === "trialing"
+      } else {
+          isPro = true
+      }
+    } else if (event.type === "customer.subscription.deleted") {
+      isPro = false
+    } else {
+      return new Response("Event not handled", { status: 200 })
+    }
+
+    const updateData: any = { is_pro: isPro }
+    if (customerId) updateData.stripe_customer_id = customerId
+
+    await supabase.from("profiles").update(updateData).eq("id", profile.id)
+
+    return new Response(JSON.stringify({ received: true }), { status: 200 })
+  } catch (err) {
+    return new Response(`Webhook Error: ${err.message}`, { status: 400 })
+  }
+})
