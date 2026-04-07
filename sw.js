@@ -1,34 +1,12 @@
-// Increment this version number every time you deploy a new version
-const CACHE='modstack-v4';
-const FILES=['/','/app.html','/index.html','/manifest.json'];
-
-self.addEventListener('install',e=>{
-  e.waitUntil(caches.open(CACHE).then(c=>c.addAll(FILES)));
-  self.skipWaiting();
-});
-
-self.addEventListener('activate',e=>{
+// v5 - network only, no caching to prevent lag
+self.addEventListener('install', () => self.skipWaiting());
+self.addEventListener('activate', e => {
   e.waitUntil(
-    caches.keys().then(keys=>
-      Promise.all(keys.filter(k=>k!==CACHE).map(k=>{
-        console.log('Deleting old cache:',k);
-        return caches.delete(k);
-      }))
-    )
+    caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k))))
+      .then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
-
-// Network first — always try to get fresh version, fall back to cache
-self.addEventListener('fetch',e=>{
-  e.respondWith(
-    fetch(e.request)
-      .then(res=>{
-        // Update cache with fresh version
-        const clone=res.clone();
-        caches.open(CACHE).then(c=>c.put(e.request,clone));
-        return res;
-      })
-      .catch(()=>caches.match(e.request))
-  );
+// Always fetch from network, never cache
+self.addEventListener('fetch', e => {
+  e.respondWith(fetch(e.request));
 });
