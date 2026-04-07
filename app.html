@@ -490,7 +490,8 @@
 
         function checkUpgradedParam() {
             const params = new URLSearchParams(window.location.search);
-            if (params.get('upgraded') === '1' && !profile?.is_pro) {
+            if (params.get('
+            upgraded') === '1' && !profile?.is_pro) {
                 startPolling();
             }
         }
@@ -545,7 +546,15 @@
             }, 500);
         }
 
-        init();
+        
+                // Safety timeout to force show app if initialization hangs
+        setTimeout(() => {
+            const loader = document.getElementById('loader');
+            if (loader && loader.style.display !== 'none') {
+                console.log("Initialization timeout: forcing app display");
+                showApp();
+            }
+        }, 3000);
     </script>
 </body>
 </html>
