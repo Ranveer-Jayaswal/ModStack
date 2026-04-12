@@ -467,6 +467,10 @@ button,input,select,textarea{font-family:'DM Sans',sans-serif;font-size:15px;}
           <span class="account-row-label">Share build link</span>
           <span class="account-row-val" id="share-lock">🔒 Pro</span>
         </div>
+        <div class="account-row" id="manage-sub-row" style="display:none;" onclick="manageSubscription()">
+          <span class="account-row-label">Manage subscription</span>
+          <span class="account-row-val">→</span>
+        </div>
       </div>
       <div class="sec-label">Account</div>
       <div class="account-section">
@@ -545,8 +549,8 @@ const SUPABASE_URL='https://axzxsxdpahnqivnbbysf.supabase.co';
 const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF4enhzeGRwYWhucWl2bmJieXNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0NDM3MjIsImV4cCI6MjA5MTAxOTcyMn0.vvJrFlkoyEMaSwXt3JbG97L62YS0pcxPKPS6G7Qf0Ns';
 // !! REPLACE THESE with your real Stripe payment links
 // Both must have success redirect set to: https://mmodstack.vercel.app/app.html?upgraded=1
-const STRIPE_MONTHLY='https://buy.stripe.com/https://buy.stripe.com/5kQ6oA81AdrA0dicov0VO00';
-const STRIPE_YEARLY='https://buy.stripe.com/https://buy.stripe.com/9B67sE5Tsbjse4888f0VO01';
+const STRIPE_MONTHLY='https://buy.stripe.com/5kQ6oA81AdrA0dicov0VO00';
+const STRIPE_YEARLY='https://buy.stripe.com/9B67sE5Tsbjse4888f0VO01';
 const FREE_CAR=1,FREE_MOD=10;
 const WELCOME_KEY='ms_pro_welcomed_v2';
 
@@ -817,6 +821,14 @@ function renderBuilds(){
   }).join('');
 }
 
+function manageSubscription(){
+  // Stripe Customer Portal — enable this in Stripe Dashboard first:
+  // Stripe → Settings → Billing → Customer portal → Activate
+  // Then paste your portal link below
+  const PORTAL_LINK='https://billing.stripe.com/p/login/5kQ6oA81AdrA0dicov0VO00';
+  window.open(PORTAL_LINK,'_blank');
+}
+
 function renderAccount(){
   const pro=isPro();
   $('acct-free').style.display=pro?'none':'block';
@@ -824,6 +836,9 @@ function renderAccount(){
   const pl=$('pdf-lock');const sl=$('share-lock');
   if(pl)pl.textContent=pro?'→':'🔒 Pro';
   if(sl)sl.textContent=pro?'→':'🔒 Pro';
+  // Show manage subscription only for Pro users
+  const manageRow=$('manage-sub-row');
+  if(manageRow)manageRow.style.display=pro?'flex':'none';
   if(!pro){
     const car=getActiveCar();const mc=car?car.mods.length:0;
     $('free-limits-el').innerHTML=`
