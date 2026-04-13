@@ -136,7 +136,7 @@ footer p{font-size:13px;color:var(--muted);}
 @media(max-width:900px){
   .hero-visual{display:none;}
   .feat-grid{grid-template-columns:1fr;}
-  .pricing-cards{grid-template-columns:1fr;}
+  .pricing-cards{grid-template-columns:1fr !important;}
   .stats-bar{grid-template-columns:repeat(2,1fr);}
 }
 @media(max-width:600px){
@@ -214,7 +214,14 @@ footer p{font-size:13px;color:var(--muted);}
 <div class="stats-bar">
   <div class="stat-item"><div class="stat-item-n">8</div><div class="stat-item-l">mod categories</div></div>
   <div class="stat-item"><div class="stat-item-n">∞</div><div class="stat-item-l">builds on Pro</div></div>
-  <div class="stat-item"><div class="stat-item-n">$12</div><div class="stat-item-l">per month Pro</div></div>
+  <div class="stat-item">
+    <div class="stat-item-n" style="display:flex;align-items:baseline;gap:8px;justify-content:center;">
+      <span>$12</span>
+      <span style="font-size:18px;color:#555;">/mo</span>
+      <span style="font-size:14px;color:#1a9e69;font-family:'DM Sans',sans-serif;font-weight:500;">or $119/yr</span>
+    </div>
+    <div class="stat-item-l">Pro plans</div>
+  </div>
   <div class="stat-item"><div class="stat-item-n">7-day</div><div class="stat-item-l">free trial</div></div>
 </div>
 
@@ -260,7 +267,10 @@ footer p{font-size:13px;color:var(--muted);}
   <div class="pricing-inner">
     <div class="section-label fade-in" style="text-align:center;">Pricing</div>
     <div class="section-title fade-in">Simple pricing.<br/>No surprises.</div>
-    <div class="pricing-cards">
+    <p class="fade-in" style="text-align:center;color:#777;font-size:14px;margin-top:-1rem;margin-bottom:2rem;">All Pro plans include a 7-day free trial. Cancel anytime.</p>
+    <div class="pricing-cards" style="grid-template-columns:1fr 1fr 1fr;gap:1rem;">
+
+      <!-- FREE -->
       <div class="pricing-card fade-in">
         <div class="price-tier">Free</div>
         <div class="price-amount">$0</div>
@@ -270,27 +280,46 @@ footer p{font-size:13px;color:var(--muted);}
           <li><span class="check">→</span>Up to 10 mods</li>
           <li><span class="check">→</span>Budget tracking</li>
           <li style="color:#444;"><span style="color:#444;">→</span>No PDF export</li>
-          <li style="color:#444;"><span style="color:#444;">→</span>No share link</li>
+          <li style="color:#444;"><span style="color:#444;">→</span>No AI advisor</li>
           <li style="color:#444;"><span style="color:#444;">→</span>No cloud sync</li>
         </ul>
         <a href="app.html" class="price-btn price-btn-outline">Get started free</a>
       </div>
+
+      <!-- MONTHLY PRO -->
       <div class="pricing-card featured fade-in">
         <div class="feat-badge">Most popular</div>
-        <div class="price-tier">Pro</div>
+        <div class="price-tier">Pro Monthly</div>
         <div class="price-amount">$12<span>/mo</span></div>
         <div class="price-period">billed monthly · cancel anytime</div>
         <ul class="price-features">
           <li><span class="check">→</span>Unlimited car builds</li>
           <li><span class="check">→</span>Unlimited mods</li>
           <li><span class="check">→</span>Budget tracking</li>
-          <li><span class="check">→</span>PDF export</li>
-          <li><span class="check">→</span>Share build link</li>
+          <li><span class="check">→</span>AI parts advisor</li>
+          <li><span class="check">→</span>PDF export + share links</li>
           <li><span class="check">→</span>Cloud sync across devices</li>
-          <li><span class="check">→</span>Priority support</li>
         </ul>
         <a href="app.html" class="price-btn price-btn-filled">Start 7-day free trial →</a>
       </div>
+
+      <!-- YEARLY PRO -->
+      <div class="pricing-card fade-in" style="border-color:#1a9e69;position:relative;">
+        <div class="feat-badge" style="background:#1a9e69;">Save 17%</div>
+        <div class="price-tier" style="color:#1a9e69;">Pro Yearly</div>
+        <div class="price-amount" style="color:#1a9e69;">$119<span style="color:#555;">/yr</span></div>
+        <div class="price-period">billed yearly · only $9.92/mo</div>
+        <ul class="price-features">
+          <li><span class="check" style="color:#1a9e69;">→</span>Unlimited car builds</li>
+          <li><span class="check" style="color:#1a9e69;">→</span>Unlimited mods</li>
+          <li><span class="check" style="color:#1a9e69;">→</span>Budget tracking</li>
+          <li><span class="check" style="color:#1a9e69;">→</span>AI parts advisor</li>
+          <li><span class="check" style="color:#1a9e69;">→</span>PDF export + share links</li>
+          <li><span class="check" style="color:#1a9e69;">→</span>Cloud sync across devices</li>
+        </ul>
+        <a href="app.html" class="price-btn price-btn-filled" style="background:#1a9e69;border-color:#1a9e69;">Start 7-day free trial →</a>
+      </div>
+
     </div>
   </div>
 </section>
