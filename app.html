@@ -435,9 +435,23 @@ button,input,select,textarea{font-family:'DM Sans',sans-serif;font-size:15px;}
         <div class="upgrade-banner">
           <h3>Upgrade to Pro</h3>
           <p>Unlimited builds, mods, AI advisor, PDF export, and cloud sync.</p>
-          <div class="price-row"><span class="price-big">$12</span><span class="price-per">/ month</span></div>
-          <button class="upgrade-banner-btn" onclick="showUpgrade()">Start 7-day free trial →</button>
-          <div class="trial-note">Card required · Cancel anytime</div>
+          <!-- Pricing cards -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+            <div onclick="showUpgradeWithPlan('monthly')" style="background:rgba(192,57,43,.1);border:1px solid rgba(192,57,43,.3);border-radius:10px;padding:14px 10px;cursor:pointer;transition:all .2s;text-align:center;">
+              <div style="font-size:11px;color:#e74c3c;font-family:'DM Mono',monospace;letter-spacing:1px;margin-bottom:6px;">MONTHLY</div>
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:#f0ede8;line-height:1;">$12</div>
+              <div style="font-size:11px;color:#888;margin-top:3px;">per month</div>
+              <div style="margin-top:10px;background:var(--red);color:#fff;padding:7px;border-radius:7px;font-size:12px;font-weight:500;">Start free trial →</div>
+            </div>
+            <div onclick="showUpgradeWithPlan('yearly')" style="background:rgba(26,158,105,.1);border:1px solid rgba(26,158,105,.3);border-radius:10px;padding:14px 10px;cursor:pointer;transition:all .2s;text-align:center;position:relative;">
+              <div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#1a9e69;color:#fff;font-size:9px;font-family:'DM Mono',monospace;letter-spacing:1px;padding:3px 10px;border-radius:10px;white-space:nowrap;">SAVE 17%</div>
+              <div style="font-size:11px;color:#1a9e69;font-family:'DM Mono',monospace;letter-spacing:1px;margin-bottom:6px;">YEARLY</div>
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:#f0ede8;line-height:1;">$119</div>
+              <div style="font-size:11px;color:#888;margin-top:3px;">per year · saves $25</div>
+              <div style="margin-top:10px;background:#1a9e69;color:#fff;padding:7px;border-radius:7px;font-size:12px;font-weight:500;">Start free trial →</div>
+            </div>
+          </div>
+          <div class="trial-note">7-day free trial · Card required · Cancel anytime</div>
         </div>
         <div class="sec-label">Free plan limits</div>
         <div class="free-limits" id="free-limits-el"></div>
@@ -548,9 +562,9 @@ button,input,select,textarea{font-family:'DM Sans',sans-serif;font-size:15px;}
 const SUPABASE_URL='https://axzxsxdpahnqivnbbysf.supabase.co';
 const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF4enhzeGRwYWhucWl2bmJieXNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0NDM3MjIsImV4cCI6MjA5MTAxOTcyMn0.vvJrFlkoyEMaSwXt3JbG97L62YS0pcxPKPS6G7Qf0Ns';
 // !! REPLACE THESE with your real Stripe payment links
-// Both must have success redirect set to: https://mmodstack.vercel.app/app.html?upgraded=1
-const STRIPE_MONTHLY='https://buy.stripe.com/5kQ6oA81AdrA0dicov0VO00';
-const STRIPE_YEARLY='https://buy.stripe.com/9B67sE5Tsbjse4888f0VO01';
+// Both must have success redirect set to: https://YOURDOMAIN/app.html?upgraded=1
+const STRIPE_MONTHLY='https://buy.stripe.com/YOUR_MONTHLY_LINK';
+const STRIPE_YEARLY='https://buy.stripe.com/YOUR_YEARLY_LINK';
 const FREE_CAR=1,FREE_MOD=10;
 const WELCOME_KEY='ms_pro_welcomed_v2';
 
@@ -825,7 +839,7 @@ function manageSubscription(){
   // Stripe Customer Portal — enable this in Stripe Dashboard first:
   // Stripe → Settings → Billing → Customer portal → Activate
   // Then paste your portal link below
-  const PORTAL_LINK='https://billing.stripe.com/p/login/5kQ6oA81AdrA0dicov0VO00';
+  const PORTAL_LINK='https://billing.stripe.com/p/login/YOUR_PORTAL_LINK';
   window.open(PORTAL_LINK,'_blank');
 }
 
@@ -957,6 +971,7 @@ function selectPlan(plan){
 
 function requirePro(fn){if(isPro()){fn();}else{showUpgrade();}}
 function showUpgrade(){selectedPlan='monthly';selectPlan('monthly');$('upgrade-overlay').style.display='flex';}
+function showUpgradeWithPlan(plan){selectedPlan=plan;selectPlan(plan);$('upgrade-overlay').style.display='flex';}
 function closeSheets(){$('upgrade-overlay').style.display='none';$('share-overlay').style.display='none';}
 
 function goStripe(){
@@ -1037,16 +1052,39 @@ function setFilter(f,el){
 
 function showShareModal(){
   const car=getActiveCar();if(!car)return;
-  const data=encodeURIComponent(JSON.stringify({car:car.name,budget:car.budget,mods:car.mods}));
-  const url=window.location.origin+'/app.html?build='+data;
-  $('share-url-text').textContent=url.length>300?url.substring(0,300)+'…':url;
+  if(car.public_slug){showShareSheet(car.public_slug);}
+  else{generateAndShare(car);}
+}
+
+async function generateAndShare(car){
+  toast('Generating your share link…');
+  const displayName=profile?.display_name||user?.email?.split('@')[0]||'builder';
+  const carYear=car.year||2024;
+  const {data:slug,error}=await sb.rpc('generate_public_slug',{
+    car_name:car.name,
+    owner_name:displayName,
+    car_year:carYear
+  });
+  if(error||!slug){toast('Error generating link');return;}
+  const {error:updateErr}=await sb.from('cars')
+    .update({public_slug:slug,is_public:true,made_public_at:new Date().toISOString()})
+    .eq('id',car.id);
+  if(updateErr){toast('Error saving link');return;}
+  car.public_slug=slug;car.is_public=true;
+  showShareSheet(slug);
+}
+
+function showShareSheet(slug){
+  const url=`${window.location.origin}/build/${slug}`;
+  $('share-url-text').textContent=url;
   $('share-overlay').style.display='flex';
 }
 
 function copyShareLink(){
   const car=getActiveCar();if(!car)return;
-  const data=encodeURIComponent(JSON.stringify({car:car.name,budget:car.budget,mods:car.mods}));
-  const url=window.location.origin+'/app.html?build='+data;
+  const slug=car.public_slug;
+  if(!slug)return;
+  const url=`${window.location.origin}/build/${slug}`;
   navigator.clipboard.writeText(url).then(()=>{
     const btn=$('copy-btn');btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy link',2000);
   });

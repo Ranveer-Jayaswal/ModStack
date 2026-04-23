@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/build/:slug",
+      "destination": "/build.html"
+    }
+  ]
+}
