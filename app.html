@@ -659,7 +659,13 @@ async function loadApp(){
 }
 
 async function loadProfile(){
-  const {data,error}=await sb.from('profiles').select('*').eq('id',user.id).single();
+  // Refresh session token first to bust any server-side cache
+  try{await sb.auth.refreshSession();}catch(e){}
+  const {data,error}=await sb
+    .from('profiles')
+    .select('*')
+    .eq('id',user.id)
+    .single();
   if(!error&&data)profile=data;
 }
 
@@ -693,35 +699,73 @@ function startPolling(){
   $('upgrading-screen').style.display='flex';
   pollCount=0;
   clearInterval(pollInterval);
+
+  // After 10 seconds show a manual escape button so user is never stuck
+  const escapeTimer=setTimeout(()=>{
+    const screen=$('upgrading-screen');
+    if(screen&&screen.style.display==='flex'&&!$('manual-activate-btn')){
+      const btn=document.createElement('button');
+      btn.id='manual-activate-btn';
+      btn.textContent='Activate manually →';
+      btn.style.cssText='margin-top:20px;background:#1a9e69;border:none;color:#fff;padding:12px 28px;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;font-family:"DM Sans",sans-serif;';
+      btn.onclick=()=>{
+        clearInterval(pollInterval);
+        clearTimeout(escapeTimer);
+        screen.style.display='none';
+        pollForPro();
+      };
+      screen.appendChild(btn);
+    }
+  },10000);
+
   pollInterval=setInterval(async()=>{
     pollCount++;
     await loadProfile();
     if(isPro()){
       clearInterval(pollInterval);
+      clearTimeout(escapeTimer);
       $('upgrading-screen').style.display='none';
       renderAll();
       maybeShowWelcome();
       return;
     }
-    if(pollCount>=30){
+    // Stop after 20 polls (40 seconds)
+    if(pollCount>=20){
       clearInterval(pollInterval);
+      clearTimeout(escapeTimer);
       $('upgrading-screen').style.display='none';
       $('pro-check-bar').style.display='block';
       renderAll();
-      toast('Payment received — tap "Activate Pro" once ready',5000);
+      toast('Tap "Activate Pro" to complete your upgrade',5000);
     }
   },2000);
 }
 
 async function pollForPro(){
-  toast('Checking payment status…');
+  const bar=$('pro-check-bar');
+  if(bar)bar.innerHTML=`<p style="font-size:13px;color:#1a9e69;line-height:1.5;">Checking your subscription…</p><button class="pro-check-btn" onclick="pollForPro()" style="opacity:.4;" disabled>Checking…</button>`;
   await loadProfile();
   if(isPro()){
-    $('pro-check-bar').style.display='none';
+    if(bar)bar.style.display='none';
     renderAll();
     maybeShowWelcome();
   } else {
-    startPolling();
+    if(bar){
+      bar.innerHTML=`
+        <p style="font-size:13px;color:#1a9e69;line-height:1.5;">Payment confirmed.<br/>Tap again in a few seconds.</p>
+        <button class="pro-check-btn" onclick="pollForPro()">Try again</button>
+      `;
+      bar.style.display='flex';
+    }
+    // Retry automatically after 5 seconds
+    setTimeout(async()=>{
+      await loadProfile();
+      if(isPro()){
+        if(bar)bar.style.display='none';
+        renderAll();
+        maybeShowWelcome();
+      }
+    },5000);
   }
 }
 
