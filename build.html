@@ -3,15 +3,11 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
-<!-- OG tags - filled dynamically by JS -->
 <title>ModStack Build</title>
-<meta name="description" content="Track every mod. Every dollar."/>
+<meta name="description" content="The verification standard for modified cars."/>
 <meta property="og:type" content="website"/>
 <meta property="og:site_name" content="ModStack"/>
 <meta property="twitter:card" content="summary_large_image"/>
-
-<!-- These get replaced by JS after fetching build data -->
 <meta property="og:title" id="og-title" content="ModStack Build"/>
 <meta property="og:description" id="og-desc" content="Track every mod. Every dollar."/>
 <meta property="og:image" id="og-image" content=""/>
@@ -19,7 +15,6 @@
 <meta property="twitter:title" id="tw-title" content="ModStack Build"/>
 <meta property="twitter:description" id="tw-desc" content="Track every mod. Every dollar."/>
 <meta property="twitter:image" id="tw-image" content=""/>
-
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=DM+Mono&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -34,23 +29,26 @@ body{background:var(--black);color:var(--white);font-family:'DM Sans',sans-serif
 @keyframes fadeIn{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:none;}}
 @keyframes spin{to{transform:rotate(360deg);}}
 .fade{animation:fadeIn .5s ease both;}
-.fade-d1{animation-delay:.1s;}
-.fade-d2{animation-delay:.2s;}
-.fade-d3{animation-delay:.3s;}
-.fade-d4{animation-delay:.4s;}
+.fade-d1{animation-delay:.1s;}.fade-d2{animation-delay:.2s;}.fade-d3{animation-delay:.3s;}.fade-d4{animation-delay:.4s;}
 
-/* LOADING */
-.loading{display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:16px;}
-.spinner{width:32px;height:32px;border:2px solid var(--border);border-top-color:var(--red);border-radius:50%;animation:spin .8s linear infinite;}
+/* ── LOADING ── */
+.loading{display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:20px;}
+.loading-logo{display:flex;align-items:center;gap:12px;}
+.loading-logo img{width:40px;height:40px;object-fit:contain;}
+.loading-logo-text{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:3px;}
+.loading-logo-text span{color:var(--red);}
+.spinner{width:24px;height:24px;border:2px solid var(--border);border-top-color:var(--red);border-radius:50%;animation:spin .8s linear infinite;}
 
-/* NAV */
-.nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:14px 24px;background:rgba(10,10,10,.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);}
-.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;text-decoration:none;color:var(--white);}
-.nav-logo span{color:var(--red);}
-.nav-cta{background:var(--red);color:#fff;padding:9px 20px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:500;transition:background .2s;}
+/* ── NAV ── */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:12px 24px;background:rgba(10,10,10,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);}
+.nav-logo{display:flex;align-items:center;gap:8px;text-decoration:none;}
+.nav-logo img{width:24px;height:24px;object-fit:contain;}
+.nav-logo-text{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:var(--white);}
+.nav-logo-text span{color:var(--red);}
+.nav-cta{background:var(--red);color:#fff;padding:9px 20px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:500;transition:background .2s;white-space:nowrap;}
 .nav-cta:hover{background:var(--red2);}
 
-/* HERO */
+/* ── HERO ── */
 .hero{min-height:100vh;display:flex;flex-direction:column;justify-content:flex-end;padding:100px 24px 48px;position:relative;overflow:hidden;}
 .hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse at 30% 70%,rgba(192,57,43,.12) 0%,transparent 60%);}
 .hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:48px 48px;}
@@ -62,22 +60,18 @@ body{background:var(--black);color:var(--white);font-family:'DM Sans',sans-serif
 .stat{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
 .stat-v{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:1px;line-height:1;}
 .stat-l{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1.5px;margin-top:4px;}
-
-/* PROGRESS */
 .progress-section{position:relative;z-index:1;max-width:600px;margin-top:20px;}
 .prog-label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;margin-bottom:8px;}
 .prog-track{height:4px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden;}
 .prog-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--red),var(--amber));transition:width 1s ease;}
 
-/* MAIN CONTENT */
+/* ── MAIN ── */
 .main{max-width:800px;margin:0 auto;padding:48px 24px 120px;}
-
-/* SECTION HEADERS */
 .section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
 .section-title{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1px;}
 .section-count{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;background:var(--surface2);border:1px solid var(--border);padding:3px 10px;border-radius:20px;}
 
-/* MOD CARDS */
+/* ── MOD CARDS ── */
 .mod-list{display:flex;flex-direction:column;gap:8px;margin-bottom:40px;}
 .mod-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:14px;transition:border-color .2s;}
 .mod-card:hover{border-color:#333;}
@@ -91,19 +85,7 @@ body{background:var(--black);color:var(--white);font-family:'DM Sans',sans-serif
 .b-planned{background:rgba(243,156,18,.1);color:#f39c12;}
 .b-progress{background:rgba(52,152,219,.1);color:#3498db;}
 
-/* CATEGORY COLORS */
-.cat-engine{background:#c0392b;}
-.cat-exhaust{background:#888;}
-.cat-suspension{background:#f39c12;}
-.cat-wheels{background:#3498db;}
-.cat-exterior{background:#9b59b6;}
-.cat-interior{background:#1a9e69;}
-.cat-brakes{background:#e74c3c;}
-.cat-turbo{background:#e67e22;}
-.cat-electronics{background:#2ecc71;}
-.cat-other{background:#555;}
-
-/* STATS BREAKDOWN */
+/* ── BREAKDOWN ── */
 .breakdown{display:flex;flex-direction:column;gap:10px;margin-bottom:40px;}
 .breakdown-row{display:flex;align-items:center;gap:12px;}
 .breakdown-label{font-size:12px;color:var(--text);font-family:'DM Mono',monospace;width:100px;flex-shrink:0;}
@@ -111,85 +93,155 @@ body{background:var(--black);color:var(--white);font-family:'DM Sans',sans-serif
 .breakdown-bar{height:100%;border-radius:99px;transition:width .8s ease;}
 .breakdown-val{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;width:70px;text-align:right;flex-shrink:0;}
 
-/* CTA FOOTER */
+/* ── CTA FOOTER ── */
 .cta-footer{background:linear-gradient(135deg,#1a0808,#0a0a0a);border:1px solid rgba(192,57,43,.2);border-radius:16px;padding:32px 24px;text-align:center;margin-bottom:48px;}
 .cta-footer h3{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:1px;margin-bottom:8px;}
 .cta-footer p{font-size:14px;color:var(--muted);margin-bottom:20px;line-height:1.6;}
 .cta-btn{display:inline-block;background:var(--red);color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-size:15px;font-weight:500;transition:all .2s;}
 .cta-btn:hover{background:var(--red2);transform:translateY(-1px);}
-
-/* VIEW COUNT */
 .view-count{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;}
 
-/* NOT FOUND */
-.not-found{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;text-align:center;gap:12px;padding:2rem;}
-.not-found h2{font-family:'Bebas Neue',sans-serif;font-size:48px;letter-spacing:2px;color:#222;}
-.not-found p{font-size:15px;color:var(--muted);max-width:300px;line-height:1.6;}
+/* ── EMPTY STATE ── */
+.empty-build{text-align:center;padding:48px 24px;border:1px dashed #2a2a2a;border-radius:12px;margin-bottom:40px;}
+.empty-build-icon{font-size:40px;opacity:.3;margin-bottom:12px;}
+.empty-build-title{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1px;color:#333;margin-bottom:6px;}
+.empty-build-sub{font-size:13px;color:var(--muted);line-height:1.6;}
+
+/* ── 404 ── */
+.not-found{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;text-align:center;gap:16px;padding:2rem;background:var(--black);}
+.not-found-logo{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.not-found-logo img{width:40px;height:40px;object-fit:contain;}
+.not-found-logo-text{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;}
+.not-found-logo-text span{color:var(--red);}
+.not-found-code{font-family:'Bebas Neue',sans-serif;font-size:120px;line-height:1;color:#1a1a1a;letter-spacing:4px;}
+.not-found h2{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;color:var(--white);margin-top:-16px;}
+.not-found p{font-size:14px;color:var(--muted);max-width:280px;line-height:1.7;}
+.not-found-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:8px;}
+.not-found-btn-primary{background:var(--red);color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:500;}
+.not-found-btn-secondary{border:1px solid var(--border);color:var(--text);padding:12px 24px;border-radius:8px;text-decoration:none;font-size:14px;}
 
 @media(max-width:600px){
   .stats-row{grid-template-columns:repeat(2,1fr);}
   .hero{padding:80px 16px 36px;}
   .main{padding:32px 16px 100px;}
   .car-name{font-size:clamp(48px,14vw,80px);}
+  .nav{padding:10px 16px;}
+}
+
+/* ============================================
+   PRINT / PDF — Official Build Specification
+   ============================================ */
+@media print{
+  *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;}
+  .nav,.hero-bg,.hero-grid,.cta-footer,.view-count,
+  button,a.cta-btn,a.nav-cta,.not-found{display:none !important;}
+  @page{size:A4 portrait;margin:15mm 20mm 20mm 20mm;}
+  body{background:#fff !important;color:#111 !important;font-size:11pt;line-height:1.5;}
+  /* Red accent bar at top */
+  body::before{content:'';display:block;width:100%;height:4pt;background:#c0392b !important;margin-bottom:0;}
+  /* Print header */
+  .nav::after{
+    content:'MODSTACK · OFFICIAL BUILD SPECIFICATION';
+    display:block !important;
+    font-family:'DM Mono',monospace;
+    font-size:8pt;
+    letter-spacing:3pt;
+    color:#999;
+    padding:16pt 0 12pt;
+    border-bottom:1pt solid #eee;
+    margin-bottom:20pt;
+  }
+  .hero{min-height:auto !important;padding:20pt 0 24pt !important;background:#fff !important;}
+  .hero::before{
+    content:'MODSTACK · OFFICIAL BUILD SPECIFICATION';
+    display:block;
+    font-family:monospace;
+    font-size:8pt;
+    letter-spacing:2pt;
+    color:#bbb;
+    margin-bottom:16pt;
+    padding-bottom:12pt;
+    border-bottom:1pt solid #f0f0f0;
+  }
+  .hero::after{
+    content:'Generated: ' attr(data-date);
+    display:block;
+    font-size:8pt;
+    color:#ccc;
+    font-family:monospace;
+    margin-top:8pt;
+  }
+  .owner-tag{background:#f5f5f5 !important;border:1pt solid #ddd !important;color:#c0392b !important;font-size:8pt !important;padding:4pt 10pt !important;margin-bottom:10pt !important;}
+  .car-name{font-size:42pt !important;color:#111 !important;line-height:1 !important;margin-bottom:4pt !important;}
+  .car-sub{color:#666 !important;font-size:11pt !important;margin-bottom:16pt !important;}
+  .stats-row{display:grid !important;grid-template-columns:repeat(4,1fr) !important;gap:8pt !important;max-width:100% !important;margin-bottom:16pt !important;}
+  .stat{background:#f8f8f8 !important;border:1pt solid #e0e0e0 !important;border-radius:4pt !important;padding:10pt 12pt !important;page-break-inside:avoid;}
+  .stat-v{font-size:22pt !important;color:#111 !important;}
+  .stat-l{font-size:7pt !important;color:#888 !important;}
+  .progress-section{max-width:100% !important;margin-bottom:0 !important;}
+  .prog-label{color:#888 !important;font-size:8pt !important;}
+  .prog-track{background:#eee !important;height:5pt !important;}
+  .prog-fill{background:#c0392b !important;}
+  .main{padding:20pt 0 0 !important;max-width:100% !important;}
+  .section-head{page-break-after:avoid;margin-bottom:10pt !important;}
+  .section-title{font-size:16pt !important;color:#111 !important;}
+  .section-count{background:#f5f5f5 !important;border:1pt solid #ddd !important;color:#666 !important;font-size:8pt !important;}
+  .mod-list{gap:4pt !important;margin-bottom:20pt !important;}
+  .mod-card{background:#fff !important;border:1pt solid #e8e8e8 !important;border-radius:4pt !important;padding:8pt 12pt !important;page-break-inside:avoid;break-inside:avoid;}
+  .mod-name{font-size:11pt !important;color:#111 !important;}
+  .mod-cat{font-size:8pt !important;color:#888 !important;}
+  .mod-cost{font-size:11pt !important;color:#333 !important;font-weight:600 !important;}
+  .b-installed{background:#e8f8f2 !important;color:#0f6e56 !important;}
+  .b-planned{background:#fef9e7 !important;color:#9a6a00 !important;}
+  .b-progress{background:#eaf4fb !important;color:#1a6090 !important;}
+  .breakdown{margin-bottom:20pt !important;}
+  .breakdown-label{color:#444 !important;font-size:9pt !important;}
+  .breakdown-bar-wrap{background:#f0f0f0 !important;height:5pt !important;}
+  .breakdown-val{color:#666 !important;font-size:9pt !important;}
+  body::after{content:'ModStack · The Verification Standard for Modified Cars · modstack.app';display:block;text-align:center;font-size:8pt;color:#ccc;font-family:monospace;letter-spacing:1pt;margin-top:24pt;padding-top:12pt;border-top:1pt solid #eee;}
 }
 </style>
 </head>
 <body>
 
 <nav class="nav">
-  <a href="/" class="nav-logo">Mod<span>Stack</span></a>
+  <a href="/" class="nav-logo">
+    <img src="/logo.png" alt="ModStack"/>
+    <div class="nav-logo-text">Mod<span>Stack</span></div>
+  </a>
   <a href="/app.html" class="nav-cta">Track your build free →</a>
 </nav>
 
 <div class="loading" id="loading">
+  <div class="loading-logo">
+    <img src="/logo.png" alt="ModStack"/>
+    <div class="loading-logo-text">Mod<span>Stack</span></div>
+  </div>
   <div class="spinner"></div>
 </div>
 
 <div id="page" style="display:none;">
-
   <section class="hero" id="hero">
     <div class="hero-bg"></div>
     <div class="hero-grid"></div>
     <div class="hero-content">
-      <div class="owner-tag fade" id="owner-tag">
-        <span>🔧</span>
-        <span id="owner-name">Builder</span>
-      </div>
+      <div class="owner-tag fade" id="owner-tag"><span>🔧</span><span id="owner-name">Builder</span></div>
       <div class="car-name fade fade-d1" id="car-name">Loading…</div>
       <div class="car-sub fade fade-d2" id="car-sub"></div>
       <div class="stats-row fade fade-d3">
-        <div class="stat">
-          <div class="stat-v" id="stat-mods">—</div>
-          <div class="stat-l">TOTAL MODS</div>
-        </div>
-        <div class="stat">
-          <div class="stat-v" style="color:var(--green);" id="stat-installed">—</div>
-          <div class="stat-l">INSTALLED</div>
-        </div>
-        <div class="stat">
-          <div class="stat-v" style="color:var(--red);" id="stat-spent">—</div>
-          <div class="stat-l">SPENT</div>
-        </div>
-        <div class="stat">
-          <div class="stat-v" style="color:var(--amber);" id="stat-planned">—</div>
-          <div class="stat-l">PLANNED</div>
-        </div>
+        <div class="stat"><div class="stat-v" id="stat-mods">—</div><div class="stat-l">TOTAL MODS</div></div>
+        <div class="stat"><div class="stat-v" style="color:var(--green);" id="stat-installed">—</div><div class="stat-l">INSTALLED</div></div>
+        <div class="stat"><div class="stat-v" style="color:var(--red);" id="stat-spent">—</div><div class="stat-l">SPENT</div></div>
+        <div class="stat"><div class="stat-v" style="color:var(--amber);" id="stat-planned">—</div><div class="stat-l">PLANNED</div></div>
       </div>
       <div class="progress-section fade fade-d4">
-        <div class="prog-label">
-          <span>BUILD PROGRESS</span>
-          <span id="prog-pct">0%</span>
-        </div>
-        <div class="prog-track">
-          <div class="prog-fill" id="prog-fill" style="width:0%"></div>
-        </div>
+        <div class="prog-label"><span>BUILD PROGRESS</span><span id="prog-pct">0%</span></div>
+        <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
       </div>
     </div>
   </section>
 
   <main class="main">
-
-    <!-- MOD LIST -->
     <div id="mods-section">
       <div class="section-head fade">
         <div class="section-title">Modification History</div>
@@ -197,77 +249,62 @@ body{background:var(--black);color:var(--white);font-family:'DM Sans',sans-serif
       </div>
       <div class="mod-list" id="mod-list"></div>
     </div>
-
-    <!-- SPEND BREAKDOWN -->
     <div id="breakdown-section">
       <div class="section-head fade">
         <div class="section-title">Spend by Category</div>
       </div>
       <div class="breakdown" id="breakdown"></div>
     </div>
-
-    <!-- CTA -->
     <div class="cta-footer fade">
       <h3>Build your own <span style="color:var(--red);">legacy.</span></h3>
-      <p>Track every mod, every dollar. Share your build with the world. Free to start.</p>
+      <p>ModStack is the verification standard for modified cars. Track every mod, every dollar. Share your build with the world.</p>
       <a href="/app.html" class="cta-btn">Start tracking free →</a>
     </div>
-
-    <!-- VIEW COUNT -->
     <div style="text-align:center;">
-      <div class="view-count" style="justify-content:center;">
-        <span>👁</span>
-        <span id="view-count">0 views</span>
-      </div>
+      <div class="view-count" style="justify-content:center;"><span>👁</span><span id="view-count">0 views</span></div>
     </div>
-
   </main>
 </div>
 
-<div class="not-found" id="not-found" style="display:none;">
-  <h2>Build not found</h2>
-  <p>This build may have been made private or the link is incorrect.</p>
-  <a href="/app.html" style="color:var(--red);text-decoration:none;font-size:14px;">Start your own build →</a>
+<div class="not-found" id="not-found">
+  <div class="not-found-logo">
+    <img src="/logo.png" alt="ModStack"/>
+    <div class="not-found-logo-text">Mod<span>Stack</span></div>
+  </div>
+  <div class="not-found-code">404</div>
+  <h2>Build Not Found</h2>
+  <p>This build may have been made private, deleted, or the link is incorrect.</p>
+  <div class="not-found-btns">
+    <a href="/app.html" class="not-found-btn-primary">Start your own build →</a>
+    <a href="/" class="not-found-btn-secondary">Go home</a>
+  </div>
 </div>
 
 <script>
 const SUPABASE_URL='https://axzxsxdpahnqivnbbysf.supabase.co';
 const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF4enhzeGRwYWhucWl2bmJieXNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0NDM3MjIsImV4cCI6MjA5MTAxOTcyMn0.vvJrFlkoyEMaSwXt3JbG97L62YS0pcxPKPS6G7Qf0Ns';
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-
-const CAT_COLORS={
-  'Engine':'#c0392b','Exhaust':'#888','Suspension':'#f39c12',
-  'Wheels':'#3498db','Exterior':'#9b59b6','Interior':'#1a9e69',
-  'Brakes':'#e74c3c','Turbo/Boost':'#e67e22','Electronics':'#2ecc71','Other':'#555'
-};
+const CAT_COLORS={'Engine':'#c0392b','Exhaust':'#888','Suspension':'#f39c12','Wheels':'#3498db','Exterior':'#9b59b6','Interior':'#1a9e69','Brakes':'#e74c3c','Turbo/Boost':'#e67e22','Electronics':'#2ecc71','Other':'#555'};
 
 async function init(){
-  // Get slug from URL path: /build/wrx-ranveer-2022
-  const path=window.location.pathname;
-  const slug=path.split('/').filter(Boolean).pop();
+  const parts=window.location.pathname.split('/').filter(Boolean);
+  const slug=parts[parts.length-1];
+  if(!slug||slug==='build.html'||slug==='build'){show404();return;}
 
-  if(!slug||slug==='build.html'){
-    show('not-found');return;
-  }
+  let timedOut=false;
+  const timeout=setTimeout(()=>{timedOut=true;show404();},8000);
 
-  // Fetch build
   const {data:car,error}=await sb
     .from('cars')
-    .select(`
-      id, name, make, model, year, color, budget, description,
-      public_slug, public_views, made_public_at,
-      profiles!cars_user_id_fkey(display_name, email),
-      mods(id, name, category, cost, status)
-    `)
+    .select(`id,name,make,model,year,color,budget,description,public_slug,public_views,made_public_at,profiles!cars_user_id_fkey(display_name,email),mods(id,name,category,cost,status)`)
     .eq('public_slug',slug)
     .eq('is_public',true)
     .single();
 
-  if(error||!car){
-    show('not-found');return;
-  }
+  clearTimeout(timeout);
+  if(timedOut)return;
+  if(error||!car){show404();return;}
 
-  // Increment view count (fire and forget)
   sb.rpc('increment_build_views',{slug}).then(()=>{});
 
   const mods=car.mods||[];
@@ -275,23 +312,21 @@ async function init(){
   const ownerName=profile?.display_name||profile?.email?.split('@')[0]||'Builder';
   const carName=car.name||(car.year&&car.make&&car.model?`${car.year} ${car.make} ${car.model}`:'My Build');
 
-  // Stats
   const installed=mods.filter(m=>m.status==='installed');
   const spent=installed.reduce((s,m)=>s+parseFloat(m.cost||0),0);
   const planned=mods.reduce((s,m)=>s+parseFloat(m.cost||0),0);
-  const budget=parseFloat(car.budget)||0;
   const completionPct=mods.length>0?Math.round(installed.length/mods.length*100):0;
-  const budgetPct=budget>0?Math.min(100,Math.round(planned/budget*100)):0;
 
-  // Update OG meta tags
+  // Set print date
+  const heroEl=document.getElementById('hero');
+  if(heroEl)heroEl.setAttribute('data-date',new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}));
+
+  // OG tags
   const ogTitle=`${ownerName}'s ${carName} — ModStack Build`;
   const ogDesc=`${mods.length} mods · $${spent.toLocaleString()} spent · ${completionPct}% complete`;
   const ogImage=`${SUPABASE_URL}/functions/v1/og?slug=${slug}`;
-  const ogUrl=window.location.href;
-
   document.title=ogTitle;
-  setMeta('og-title',ogTitle);setMeta('og-desc',ogDesc);
-  setMeta('og-image',ogImage);setMeta('og-url',ogUrl);
+  setMeta('og-title',ogTitle);setMeta('og-desc',ogDesc);setMeta('og-image',ogImage);setMeta('og-url',window.location.href);
   setMeta('tw-title',ogTitle);setMeta('tw-desc',ogDesc);setMeta('tw-image',ogImage);
 
   // Render hero
@@ -303,76 +338,59 @@ async function init(){
   document.getElementById('stat-spent').textContent='$'+spent.toLocaleString();
   document.getElementById('stat-planned').textContent='$'+planned.toLocaleString();
   document.getElementById('prog-pct').textContent=completionPct+'%';
-  document.getElementById('view-count').textContent=(car.public_views||0)+' views';
+  document.getElementById('view-count').textContent=((car.public_views||0)+1).toLocaleString()+' views';
+  setTimeout(()=>{document.getElementById('prog-fill').style.width=completionPct+'%';},300);
 
-  // Animate progress bar
-  setTimeout(()=>{
-    document.getElementById('prog-fill').style.width=completionPct+'%';
-  },300);
-
-  // Render mods — sorted: installed first, then in-progress, then planned
-  const sorted=[...mods].sort((a,b)=>{
-    const order={installed:0,'in-progress':1,planned:2};
-    return (order[a.status]??3)-(order[b.status]??3);
-  });
-
+  // Mod list
   const modList=document.getElementById('mod-list');
   document.getElementById('mod-count').textContent=mods.length+' mod'+(mods.length!==1?'s':'');
 
-  modList.innerHTML=sorted.map((m,i)=>{
-    const bc=m.status==='installed'?'b-installed':m.status==='planned'?'b-planned':'b-progress';
-    const bl=m.status==='in-progress'?'in progress':m.status;
-    const color=CAT_COLORS[m.category]||'#555';
-    return `<div class="mod-card" style="animation:fadeIn .4s ${i*0.05}s ease both;opacity:0;">
-      <div class="mod-cat-dot" style="background:${color};"></div>
-      <div class="mod-info">
-        <div class="mod-name">${esc(m.name)}</div>
-        <div class="mod-cat">${esc(m.category)}</div>
-      </div>
-      <div class="mod-cost">$${parseFloat(m.cost||0).toLocaleString()}</div>
-      <span class="mod-badge ${bc}">${bl}</span>
-    </div>`;
-  }).join('');
+  if(mods.length===0){
+    modList.innerHTML=`<div class="empty-build"><div class="empty-build-icon">🔧</div><div class="empty-build-title">Build in progress</div><div class="empty-build-sub">${esc(ownerName)} is just getting started.<br/>Check back soon for the full modification history.</div></div>`;
+    document.getElementById('breakdown-section').style.display='none';
+  } else {
+    const sorted=[...mods].sort((a,b)=>({installed:0,'in-progress':1,planned:2}[a.status]??3)-({installed:0,'in-progress':1,planned:2}[b.status]??3));
+    modList.innerHTML=sorted.map((m,i)=>{
+      const bc=m.status==='installed'?'b-installed':m.status==='planned'?'b-planned':'b-progress';
+      const bl=m.status==='in-progress'?'in progress':m.status;
+      const color=CAT_COLORS[m.category]||'#555';
+      return `<div class="mod-card" style="animation:fadeIn .4s ${i*0.04}s ease both;opacity:0;">
+        <div class="mod-cat-dot" style="background:${color};"></div>
+        <div class="mod-info"><div class="mod-name">${esc(m.name)}</div><div class="mod-cat">${esc(m.category)}</div></div>
+        <div class="mod-cost">$${parseFloat(m.cost||0).toLocaleString()}</div>
+        <span class="mod-badge ${bc}">${bl}</span>
+      </div>`;
+    }).join('');
 
-  // Render spend breakdown by category
-  const catTotals={};
-  mods.forEach(m=>{
-    const cat=m.category||'Other';
-    catTotals[cat]=(catTotals[cat]||0)+parseFloat(m.cost||0);
-  });
-  const maxCat=Math.max(...Object.values(catTotals));
-  const sortedCats=Object.entries(catTotals).sort(([,a],[,b])=>b-a);
+    // Breakdown
+    const catTotals={};
+    mods.forEach(m=>{const cat=m.category||'Other';catTotals[cat]=(catTotals[cat]||0)+parseFloat(m.cost||0);});
+    const maxCat=Math.max(...Object.values(catTotals));
+    document.getElementById('breakdown').innerHTML=Object.entries(catTotals).sort(([,a],[,b])=>b-a).map(([cat,total])=>`
+      <div class="breakdown-row" style="animation:fadeIn .5s ease both;">
+        <div class="breakdown-label">${esc(cat)}</div>
+        <div class="breakdown-bar-wrap"><div class="breakdown-bar" style="width:${maxCat>0?Math.round(total/maxCat*100):0}%;background:${CAT_COLORS[cat]||'#555'};"></div></div>
+        <div class="breakdown-val">$${total.toLocaleString()}</div>
+      </div>`).join('');
+  }
 
-  const breakdown=document.getElementById('breakdown');
-  breakdown.innerHTML=sortedCats.map(([cat,total])=>{
-    const pct=maxCat>0?Math.round(total/maxCat*100):0;
-    const color=CAT_COLORS[cat]||'#555';
-    return `<div class="breakdown-row" style="animation:fadeIn .5s ease both;">
-      <div class="breakdown-label">${esc(cat)}</div>
-      <div class="breakdown-bar-wrap">
-        <div class="breakdown-bar" style="width:${pct}%;background:${color};"></div>
-      </div>
-      <div class="breakdown-val">$${total.toLocaleString()}</div>
-    </div>`;
-  }).join('');
-
-  show('page');
-}
-
-function show(id){
   document.getElementById('loading').style.display='none';
-  document.getElementById(id).style.display='block';
+  document.getElementById('page').style.display='block';
 }
 
-function setMeta(id,content){
-  const el=document.getElementById(id);
-  if(el)el.setAttribute('content',content);
+function show404(){
+  document.getElementById('loading').style.display='none';
+  document.getElementById('not-found').style.display='flex';
+  let count=5;
+  const p=document.createElement('p');
+  p.style.cssText='font-size:12px;color:#333;font-family:monospace;margin-top:8px;';
+  p.textContent=`Redirecting in ${count}s…`;
+  document.getElementById('not-found').appendChild(p);
+  const t=setInterval(()=>{p.textContent=`Redirecting in ${--count}s…`;if(count<=0){clearInterval(t);window.location.href='/';}},1000);
 }
 
-function esc(s){
-  if(!s)return'';
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+function setMeta(id,content){const el=document.getElementById(id);if(el)el.setAttribute('content',content);}
+function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
 init();
 </script>
