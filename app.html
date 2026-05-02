@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
 <meta name="apple-mobile-web-app-title" content="ModStack"/>
-<link rel="apple-touch-icon" href="logo.png"/>
+<link rel="apple-touch-icon" href="ms-logo.svg"/>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=DM+Mono&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -39,18 +39,21 @@ button,input,select,textarea{font-family:'DM Sans',sans-serif;font-size:15px;}
 .topbar.is-pro .logo-text .stack{color:#1a9e69;}
 
 /* LOADING */
-.loading{display:flex;align-items:center;justify-content:center;height:100dvh;flex-direction:column;gap:20px;}
-.loading-logo{display:flex;align-items:center;gap:12px;animation:fadeIn .5s ease;}
-.loading-logo img{width:52px;height:52px;object-fit:contain;animation:popIn .5s cubic-bezier(.175,.885,.32,1.275);}
-.loading-logo-text{font-family:'Bebas Neue',sans-serif;font-size:44px;letter-spacing:3px;}
-.loading-logo-text span{color:var(--red);}
-.spinner{width:24px;height:24px;border:2px solid var(--border);border-top-color:var(--red);border-radius:50%;animation:spin .7s linear infinite;}
+.loading{display:flex;align-items:center;justify-content:center;height:100dvh;flex-direction:column;gap:28px;background:var(--black);}
+.loading-logo-wrap{display:flex;flex-direction:column;align-items:center;gap:20px;animation:fadeIn .4s ease;}
+.loading-logo-img{width:64px;height:64px;object-fit:contain;animation:popIn .6s cubic-bezier(.175,.885,.32,1.275);}
+.loading-wordmark{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:4px;animation:fadeIn .5s .2s ease both;}
+.loading-wordmark span{color:var(--red);}
+.loading-ring{width:48px;height:48px;position:relative;animation:fadeIn .3s .3s ease both;}
+.loading-ring svg{width:100%;height:100%;animation:spin 1.2s cubic-bezier(.4,0,.2,1) infinite;}
+@keyframes dash{0%{stroke-dashoffset:120;}50%{stroke-dashoffset:30;}100%{stroke-dashoffset:120;}}
+.loading-ring circle{stroke-dasharray:120;stroke-dashoffset:120;animation:dash 1.6s cubic-bezier(.4,0,.2,1) infinite,spin 1.6s linear infinite;transform-origin:center;}
 
 /* AUTH */
 .auth-wrap{display:none;flex-direction:column;align-items:center;justify-content:center;padding:2rem;gap:1.5rem;flex:1;}
-.auth-logo-wrap{display:flex;align-items:center;gap:14px;animation:slideUp .5s ease;}
-.auth-logo-img{width:56px;height:56px;object-fit:contain;}
-.auth-logo-text{font-family:'Bebas Neue',sans-serif;font-size:48px;letter-spacing:3px;}
+.auth-logo-wrap{display:flex;align-items:center;gap:12px;animation:slideUp .5s ease;}
+.auth-logo-img{width:44px;height:44px;object-fit:contain;}
+.auth-logo-text{font-family:'Bebas Neue',sans-serif;font-size:40px;letter-spacing:3px;}
 .auth-logo-text span{color:var(--red);}
 .auth-tagline{font-size:14px;color:var(--muted);text-align:center;animation:fadeIn .6s .1s ease both;}
 .auth-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;width:100%;max-width:400px;animation:slideUp .5s .15s ease both;}
@@ -258,16 +261,22 @@ button,input,select,textarea{font-family:'DM Sans',sans-serif;font-size:15px;}
 <body>
 
 <div class="loading" id="loading">
-  <div class="loading-logo">
-    <img src="logo.png" alt="ModStack"/>
-    <div class="loading-logo-text">Mod<span>Stack</span></div>
+  <div class="loading-logo-wrap">
+    <img src="ms-logo.svg" alt="ModStack" class="loading-logo-img"/>
+    <div class="loading-wordmark">Mod<span>Stack</span></div>
   </div>
-  <div class="spinner"></div>
+  <div class="loading-ring">
+    <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="24" cy="24" r="20" stroke="#1e1e1e" stroke-width="3"/>
+      <circle cx="24" cy="24" r="20" stroke="#c0392b" stroke-width="3" stroke-linecap="round"
+        style="transform-origin:center;stroke-dasharray:80 46;animation:spin 1.4s cubic-bezier(.4,0,.2,1) infinite;"/>
+    </svg>
+  </div>
 </div>
 
 <div class="auth-wrap" id="auth-screen">
   <div class="auth-logo-wrap">
-    <img src="logo.png" alt="ModStack" class="auth-logo-img"/>
+    <img src="ms-logo.svg" alt="ModStack" class="auth-logo-img"/>
     <div class="auth-logo-text">Mod<span>Stack</span></div>
   </div>
   <div class="auth-tagline">Track every mod. Every dollar.</div>
@@ -305,7 +314,7 @@ button,input,select,textarea{font-family:'DM Sans',sans-serif;font-size:15px;}
 <div class="pro-welcome" id="pro-welcome">
   <div class="pw-bg"></div>
   <div class="pw-logo">
-    <img src="logo.png" alt="ModStack"/>
+    <img src="ms-logo.svg" alt="ModStack"/>
     <div class="pw-logo-text">ModStack</div>
   </div>
   <div class="pw-badge">PRO MEMBER</div>
@@ -323,7 +332,7 @@ button,input,select,textarea{font-family:'DM Sans',sans-serif;font-size:15px;}
 <div class="app-shell" id="app-shell">
   <div class="topbar" id="topbar">
     <div class="logo-wrap">
-      <img src="logo.png" alt="" class="logo-img"/>
+      <img src="ms-logo.svg" alt="" class="logo-img"/>
       <div class="logo-text"><span class="mod">Mod</span><span class="stack">Stack</span></div>
     </div>
     <span class="plan-chip" id="plan-chip" onclick="handleChipClick()">FREE</span>

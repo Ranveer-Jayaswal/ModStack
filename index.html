@@ -10,7 +10,7 @@
 <meta property="og:type" content="website"/>
 <link rel="manifest" href="manifest.json"/>
 <meta name="theme-color" content="#0a0a0a"/>
-<link rel="apple-touch-icon" href="logo.png"/>
+<link rel="apple-touch-icon" href="ms-logo.svg"/>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono&display=swap" rel="stylesheet"/>
 <style>
 :root{
@@ -341,7 +341,42 @@ footer{
 .footer-right{text-align:right;}
 .footer-tagline{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;}
 
-/* ── RESPONSIVE ── */
+/* ── SCROLL TRANSITIONS ── */
+.reveal{
+  opacity:0;
+  transform:translateY(32px);
+  transition:opacity .65s cubic-bezier(.16,1,.3,1), transform .65s cubic-bezier(.16,1,.3,1);
+}
+.reveal.visible{opacity:1;transform:translateY(0);}
+
+.reveal-left{
+  opacity:0;
+  transform:translateX(-24px);
+  transition:opacity .6s cubic-bezier(.16,1,.3,1), transform .6s cubic-bezier(.16,1,.3,1);
+}
+.reveal-left.visible{opacity:1;transform:translateX(0);}
+
+.reveal-right{
+  opacity:0;
+  transform:translateX(24px);
+  transition:opacity .6s cubic-bezier(.16,1,.3,1), transform .6s cubic-bezier(.16,1,.3,1);
+}
+.reveal-right.visible{opacity:1;transform:translateX(0);}
+
+/* Staggered children */
+.stagger-children > *{
+  opacity:0;
+  transform:translateY(24px);
+  transition:opacity .55s cubic-bezier(.16,1,.3,1), transform .55s cubic-bezier(.16,1,.3,1);
+}
+.stagger-children.visible > *:nth-child(1){transition-delay:.05s;opacity:1;transform:none;}
+.stagger-children.visible > *:nth-child(2){transition-delay:.12s;opacity:1;transform:none;}
+.stagger-children.visible > *:nth-child(3){transition-delay:.19s;opacity:1;transform:none;}
+.stagger-children.visible > *:nth-child(4){transition-delay:.26s;opacity:1;transform:none;}
+.stagger-children.visible > *:nth-child(5){transition-delay:.33s;opacity:1;transform:none;}
+.stagger-children.visible > *:nth-child(6){transition-delay:.40s;opacity:1;transform:none;}
+
+/* Responsive */
 @media(max-width:900px){
   .hero{grid-template-columns:1fr;}
   .hero-right{border-top:1px solid var(--border);}
@@ -380,7 +415,7 @@ footer{
 <!-- NAV -->
 <nav class="nav">
   <div class="nav-left">
-    <img src="logo.png" alt="ModStack" class="nav-logo-img"/>
+    <img src="ms-logo.svg" alt="ModStack" class="nav-logo-img"/>
     <div class="nav-logo-text">Mod<span>Stack</span></div>
   </div>
   <div class="nav-right">
@@ -395,7 +430,7 @@ footer{
   <span class="issue-tag">VEHICLE PROVENANCE REGISTRY · EST. 2025</span>
   <div class="issue-free">
     <div class="issue-dot"></div>
-    <span>FREE FOREVER · NO CREDIT CARD</span>
+    <span>FREE · NO SUBSCRIPTION REQUIRED</span>
   </div>
 </div>
 
@@ -415,7 +450,7 @@ footer{
       <div class="hero-bottom-cell">
         <div class="hero-bottom-label">Cost to start</div>
         <div class="hero-bottom-val">$0</div>
-        <div class="hero-bottom-desc">Free forever. No catch. No card.</div>
+        <div class="hero-bottom-desc">Free forever. No subscription required.</div>
       </div>
       <div class="hero-bottom-cell">
         <div class="hero-bottom-label">Mod limit</div>
@@ -425,7 +460,7 @@ footer{
       <div class="hero-bottom-cell">
         <div class="hero-bottom-label">Verified data</div>
         <div class="hero-bottom-val">Real</div>
-        <div class="hero-bottom-desc">Receipts replace "trust me bro"</div>
+        <div class="hero-bottom-desc">Documentation replaces verbal claims at point of sale</div>
       </div>
     </div>
   </div>
@@ -467,7 +502,7 @@ footer{
     </div>
     <div class="hero-right-cta">
       <a href="/app.html" class="cta-main">Start your build record →</a>
-      <div class="cta-sub">FREE · NO CARD · 60 SECONDS TO SHARE</div>
+      <div class="cta-sub">FREE · NO SUBSCRIPTION · SHAREABLE IN 60 SECONDS</div>
     </div>
   </div>
 </section>
@@ -496,33 +531,33 @@ footer{
 
 <!-- THREE TRUTHS -->
 <section class="truths">
-  <div class="truth">
+  <div class="truth reveal">
     <div class="truth-num">01</div>
     <div class="truth-tag">For the Builder</div>
     <div class="truth-title">The Flex</div>
-    <div class="truth-body">A professional, magazine-quality build page that proves exactly what you've done to your car. Social currency for the community. A portfolio that lives at your own link and never disappears.</div>
+    <div class="truth-body">A professional, magazine-quality build page that proves exactly what you have done to your car. Social currency for the community. A portfolio that lives at your own link and never disappears.</div>
   </div>
-  <div class="truth">
+  <div class="truth reveal" style="transition-delay:.1s;">
     <div class="truth-num">02</div>
     <div class="truth-tag">For the Community</div>
     <div class="truth-title">The Trust</div>
-    <div class="truth-body">ModStack replaces "trust me, bro" with a verified, documented modification history. No more mystery builds. No more inflated claims at sale time. Just receipts and facts — publicly on record.</div>
+    <div class="truth-body">ModStack establishes a verified, documented modification history for every build. Unsubstantiated claims are replaced with receipts, part numbers, and installation records — permanently attached to the vehicle's public profile.</div>
   </div>
-  <div class="truth">
+  <div class="truth reveal" style="transition-delay:.2s;">
     <div class="truth-num">03</div>
     <div class="truth-tag">For the Industry</div>
     <div class="truth-title">The Data</div>
-    <div class="truth-body">A verified list of what parts a specific car has installed — and a roadmap of exactly what that owner plans to buy next. The most valuable data in the automotive aftermarket, finally organized.</div>
+    <div class="truth-body">A verified list of what parts a specific vehicle has installed — and a roadmap of exactly what that owner plans to purchase next. The most valuable data in the automotive aftermarket, finally organized.</div>
   </div>
 </section>
 
 <!-- HOW IT WORKS -->
 <section class="how" id="how">
-  <div class="how-header">
+  <div class="how-header reveal">
     <div class="how-header-title">How it works</div>
     <div class="how-header-sub">Zero to shareable in 60 seconds — we mean that literally.</div>
   </div>
-  <div class="steps-grid">
+  <div class="steps-grid stagger-children">
     <div class="step">
       <div class="step-num">STEP 01</div>
       <div class="step-title">Create<br/>your account</div>
@@ -532,19 +567,19 @@ footer{
     <div class="step">
       <div class="step-num">STEP 02</div>
       <div class="step-title">Add<br/>your car</div>
-      <div class="step-body">Type your year, make, and model. Set your build budget. Your build record is live immediately.</div>
+      <div class="step-body">Enter your year, make, and model. Set your build budget. Your build record is live immediately.</div>
       <div class="step-time">~10 seconds</div>
     </div>
     <div class="step">
       <div class="step-num">STEP 03</div>
       <div class="step-title">Log<br/>your mods</div>
-      <div class="step-body">Add each modification — name, cost, category, status. Mark them planned, in progress, or installed as you go.</div>
+      <div class="step-body">Add each modification — name, cost, category, status. Mark them planned, in progress, or installed as the build progresses.</div>
       <div class="step-time">~10 seconds per mod</div>
     </div>
     <div class="step">
       <div class="step-num">STEP 04</div>
       <div class="step-title">Share<br/>your proof</div>
-      <div class="step-body">Tap Share. Get a clean URL like modstack.app/build/wrx-yourname. Post it on Reddit, Discord, or TikTok. Your build is live.</div>
+      <div class="step-body">Tap Share. Receive a clean URL — modstack.app/build/your-car. Post it anywhere. Your verified build profile is immediately public.</div>
       <div class="step-time">~5 seconds</div>
     </div>
   </div>
@@ -552,57 +587,57 @@ footer{
 
 <!-- FEATURES -->
 <section class="features" id="features">
-  <div class="features-sidebar">
+  <div class="features-sidebar reveal-left">
     <div>
       <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--red);margin-bottom:1rem;text-transform:uppercase;">Everything included</div>
       <div class="features-sidebar-title">Built for builders.<br/>Not accountants.</div>
-      <div class="features-sidebar-sub" style="margin-top:1rem;">Every feature in ModStack is designed around one rule: if it takes more than 30 seconds to add a mod, it doesn't belong.</div>
+      <div class="features-sidebar-sub" style="margin-top:1rem;">Every feature in ModStack is designed around one rule: if it takes more than 30 seconds to add a mod, it does not belong in the product.</div>
     </div>
     <a href="/app.html" class="features-sidebar-cta">Try it free →</a>
   </div>
-  <div class="features-grid">
-    <div class="feat"><div class="feat-icon">📋</div><div class="feat-title">Build Records</div><div class="feat-body">Log every mod with name, category, cost, status, and install notes. Full modification history — organized, searchable, and always yours.</div></div>
-    <div class="feat"><div class="feat-icon">💰</div><div class="feat-title">Budget Tracking</div><div class="feat-body">Set a build budget and watch your spend in real time. See what's installed, what's planned, and what's left. No spreadsheet needed.</div></div>
+  <div class="features-grid stagger-children">
+    <div class="feat"><div class="feat-icon">📋</div><div class="feat-title">Build Records</div><div class="feat-body">Log every modification with name, category, cost, status, and installation notes. Full modification history — organized, searchable, and permanently yours.</div></div>
+    <div class="feat"><div class="feat-icon">💰</div><div class="feat-title">Budget Tracking</div><div class="feat-body">Set a build budget and monitor spend in real time. See what is installed, what is planned, and what remains. No spreadsheet required.</div></div>
     <div class="feat"><div class="feat-icon">🔗</div><div class="feat-title">Public Build Pages</div><div class="feat-body">One tap generates a premium shareable URL with full social preview cards — ready for Discord, Reddit, iMessage, and TikTok.</div></div>
-    <div class="feat"><div class="feat-icon">🤖</div><div class="feat-title">AI Parts Advisor</div><div class="feat-body">Ask our AI what fits your platform, how to hit your power target, or which brands to trust. Expert advice in seconds, tailored to your build.</div></div>
-    <div class="feat"><div class="feat-icon">📄</div><div class="feat-title">PDF Export</div><div class="feat-body">Generate a professional Official Build Specification PDF. Clean, printable, and ready to hand to your mechanic or a buyer.</div></div>
-    <div class="feat"><div class="feat-icon">☁️</div><div class="feat-title">Cloud Sync</div><div class="feat-body">Your builds live in the cloud. Add a mod from your phone at the shop. Pull up your full record from any device.</div></div>
+    <div class="feat"><div class="feat-icon">🤖</div><div class="feat-title">AI Parts Advisor</div><div class="feat-body">Ask our AI what fits your platform, how to reach your power target, or which brands are recommended. Expert guidance tailored to your specific build.</div></div>
+    <div class="feat"><div class="feat-icon">📄</div><div class="feat-title">PDF Export</div><div class="feat-body">Generate a professional Official Build Specification document in one tap. Clean, printable, ready to provide to your technician or a prospective buyer.</div></div>
+    <div class="feat"><div class="feat-icon">☁️</div><div class="feat-title">Cloud Sync</div><div class="feat-body">Your builds are stored in the cloud. Add a modification from your phone at the shop. Review your complete record from any device.</div></div>
   </div>
 </section>
 
 <!-- FREE -->
 <section class="free-section">
-  <div class="free-left">
+  <div class="free-left reveal-left">
     <div class="free-price-block">
       <div class="free-price">$0</div>
-      <div class="free-price-label">Free Forever · No Credit Card · No Catch</div>
+      <div class="free-price-label">Free During Growth Phase · No Credit Card Required</div>
     </div>
-    <div class="free-desc">ModStack is completely free. We are in growth mode — focused on building the world's largest verified build registry. Every feature, no limits, no time restriction.</div>
+    <div class="free-desc">ModStack is completely free during our growth phase. We are building the world's largest verified modification registry — every feature, no usage limits, no time restriction.</div>
     <a href="/app.html" class="free-cta">Start your build record →</a>
   </div>
-  <div class="free-right">
-    <div class="free-feat"><span class="free-feat-icon">→</span><div><div class="free-feat-text">Unlimited builds</div><div class="free-feat-sub">Add every car you own or have built</div></div></div>
+  <div class="free-right stagger-children">
+    <div class="free-feat"><span class="free-feat-icon">→</span><div><div class="free-feat-text">Unlimited builds</div><div class="free-feat-sub">Add every vehicle you own or have built</div></div></div>
     <div class="free-feat"><span class="free-feat-icon">→</span><div><div class="free-feat-text">Unlimited mods</div><div class="free-feat-sub">No cap on modifications per build</div></div></div>
-    <div class="free-feat"><span class="free-feat-icon">→</span><div><div class="free-feat-text">Budget tracking</div><div class="free-feat-sub">Real-time spend vs. budget</div></div></div>
+    <div class="free-feat"><span class="free-feat-icon">→</span><div><div class="free-feat-text">Budget tracking</div><div class="free-feat-sub">Real-time spend versus budget</div></div></div>
     <div class="free-feat"><span class="free-feat-icon">→</span><div><div class="free-feat-text">AI parts advisor</div><div class="free-feat-sub">Expert recommendations for your build</div></div></div>
     <div class="free-feat"><span class="free-feat-icon">→</span><div><div class="free-feat-text">Shareable build pages</div><div class="free-feat-sub">Premium public URL with OG previews</div></div></div>
-    <div class="free-feat"><span class="free-feat-icon">→</span><div><div class="free-feat-text">PDF export</div><div class="free-feat-sub">Official build specification PDF</div></div></div>
-    <div class="free-feat"><span class="free-feat-icon">→</span><div><div class="free-feat-text">Cloud sync</div><div class="free-feat-sub">Access from any device, any time</div></div></div>
-    <div class="free-feat"><span class="free-feat-icon">→</span><div><div class="free-feat-text">Social preview cards</div><div class="free-feat-sub">Looks incredible when shared anywhere</div></div></div>
+    <div class="free-feat"><span class="free-feat-icon">→</span><div><div class="free-feat-text">PDF export</div><div class="free-feat-sub">Official build specification document</div></div></div>
+    <div class="free-feat"><span class="free-feat-icon">→</span><div><div class="free-feat-text">Cloud sync</div><div class="free-feat-sub">Access from any device at any time</div></div></div>
+    <div class="free-feat"><span class="free-feat-icon">→</span><div><div class="free-feat-text">Social preview cards</div><div class="free-feat-sub">Professional appearance when shared anywhere</div></div></div>
   </div>
 </section>
 
 <!-- CLOSING -->
 <section class="closing">
-  <div class="closing-label">Start now · It's free</div>
-  <div class="closing-title">Your build.<br/>On <em>record.</em></div>
-  <div class="closing-sub">Every mod you've ever done. Every dollar you've ever spent. Verified. Shareable. Yours forever.</div>
-  <a href="/app.html" class="closing-cta">Start your build record →</a>
+  <div class="closing-label reveal">Start now · No subscription required</div>
+  <div class="closing-title reveal" style="transition-delay:.1s;">Your build.<br/>On <em>record.</em></div>
+  <div class="closing-sub reveal" style="transition-delay:.2s;">Every modification. Every dollar invested. Verified. Shareable. Permanently on record.</div>
+  <a href="/app.html" class="closing-cta reveal" style="transition-delay:.3s;">Start your build record →</a>
 </section>
 
 <footer>
   <div class="footer-logo">
-    <img src="logo.png" alt="ModStack"/>
+    <img src="ms-logo.svg" alt="ModStack"/>
     <div class="footer-logo-text">Mod<span>Stack</span></div>
   </div>
   <div class="footer-right">
@@ -610,5 +645,15 @@ footer{
   </div>
 </footer>
 
+<script>
+const observer=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting)e.target.classList.add('visible');
+  });
+},{threshold:0.07,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal,.reveal-left,.reveal-right,.stagger-children').forEach(el=>{
+  observer.observe(el);
+});
+</script>
 </body>
 </html>

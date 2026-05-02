@@ -32,12 +32,13 @@ body{background:var(--black);color:var(--white);font-family:'DM Sans',sans-serif
 .fade-d1{animation-delay:.1s;}.fade-d2{animation-delay:.2s;}.fade-d3{animation-delay:.3s;}.fade-d4{animation-delay:.4s;}
 
 /* ── LOADING ── */
-.loading{display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:20px;}
-.loading-logo{display:flex;align-items:center;gap:12px;}
-.loading-logo img{width:40px;height:40px;object-fit:contain;}
-.loading-logo-text{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:3px;}
-.loading-logo-text span{color:var(--red);}
-.spinner{width:24px;height:24px;border:2px solid var(--border);border-top-color:var(--red);border-radius:50%;animation:spin .8s linear infinite;}
+.loading{display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:28px;background:var(--black);}
+.loading-logo-wrap{display:flex;flex-direction:column;align-items:center;gap:20px;animation:fadeIn .4s ease;}
+.loading-logo-wrap img{width:64px;height:64px;object-fit:contain;animation:popIn .6s cubic-bezier(.175,.885,.32,1.275);}
+@keyframes popIn{from{transform:scale(.6);opacity:0;}to{transform:scale(1);opacity:1;}}
+.loading-wordmark{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:4px;animation:fadeIn .5s .2s ease both;}
+.loading-wordmark span{color:var(--red);}
+.loading-ring{width:48px;height:48px;animation:fadeIn .3s .3s ease both;}
 
 /* ── NAV ── */
 .nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:12px 24px;background:rgba(10,10,10,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);}
@@ -206,18 +207,24 @@ body{background:var(--black);color:var(--white);font-family:'DM Sans',sans-serif
 
 <nav class="nav">
   <a href="/" class="nav-logo">
-    <img src="/logo.png" alt="ModStack"/>
+    <img src="/ms-logo.svg" alt="ModStack"/>
     <div class="nav-logo-text">Mod<span>Stack</span></div>
   </a>
   <a href="/app.html" class="nav-cta">Track your build free →</a>
 </nav>
 
 <div class="loading" id="loading">
-  <div class="loading-logo">
-    <img src="/logo.png" alt="ModStack"/>
-    <div class="loading-logo-text">Mod<span>Stack</span></div>
+  <div class="loading-logo-wrap">
+    <img src="/ms-logo.svg" alt="ModStack"/>
+    <div class="loading-wordmark">Mod<span>Stack</span></div>
   </div>
-  <div class="spinner"></div>
+  <div class="loading-ring">
+    <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" width="48" height="48">
+      <circle cx="24" cy="24" r="20" stroke="#1e1e1e" stroke-width="3"/>
+      <circle cx="24" cy="24" r="20" stroke="#c0392b" stroke-width="3" stroke-linecap="round"
+        style="transform-origin:center;stroke-dasharray:80 46;animation:spin 1.4s cubic-bezier(.4,0,.2,1) infinite;"/>
+    </svg>
+  </div>
 </div>
 
 <div id="page" style="display:none;">
@@ -268,7 +275,7 @@ body{background:var(--black);color:var(--white);font-family:'DM Sans',sans-serif
 
 <div class="not-found" id="not-found">
   <div class="not-found-logo">
-    <img src="/logo.png" alt="ModStack"/>
+    <img src="/ms-logo.svg" alt="ModStack"/>
     <div class="not-found-logo-text">Mod<span>Stack</span></div>
   </div>
   <div class="not-found-code">404</div>
