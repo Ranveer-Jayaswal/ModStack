@@ -393,7 +393,7 @@ function show404(){
   p.style.cssText='font-size:12px;color:#333;font-family:monospace;margin-top:8px;';
   p.textContent=`Redirecting in ${count}s…`;
   document.getElementById('not-found').appendChild(p);
-  const t=setInterval(()=>{p.textContent=`Redirecting in ${--count}s…`;if(count<=0){clearInterval(t);window.location.href='/';}},1000);
+  const t=setInterval(()=>{p.textContent=`Redirecting in ${--count}s…`;if(count<=0){clearInterval(t);window.location.replace('/');}},1000);
 }
 
 function setMeta(id,content){const el=document.getElementById(id);if(el)el.setAttribute('content',content);}

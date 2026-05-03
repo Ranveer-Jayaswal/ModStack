@@ -45,7 +45,13 @@ button,input,select,textarea{font-family:'DM Sans',sans-serif;font-size:15px;}
 .loading-wordmark span{color:var(--red);}
 .loading-ring{animation:fadeIn .3s .3s ease both;}
 
-/* ── AUTH ── */
+/* ── CONNECTION ERROR ── */
+.conn-error{display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;padding:2rem;}
+.conn-error-icon{font-size:40px;opacity:.4;}
+.conn-error-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:1px;color:#555;}
+.conn-error-sub{font-size:13px;color:var(--muted);max-width:220px;line-height:1.6;}
+.conn-error-btn{background:var(--red);border:none;color:#fff;padding:12px 28px;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background .15s;}
+.conn-error-btn:active{background:var(--red2);}
 .auth-wrap{display:none;flex-direction:column;align-items:center;justify-content:center;padding:2rem;gap:1.5rem;flex:1;}
 .auth-logo-wrap{display:flex;align-items:center;gap:12px;animation:slideUp .5s ease;}
 .auth-logo-img{width:44px;height:44px;object-fit:contain;}
@@ -216,16 +222,22 @@ button,input,select,textarea{font-family:'DM Sans',sans-serif;font-size:15px;}
 
 <!-- LOADING -->
 <div class="loading" id="loading">
-  <div class="loading-logo-wrap">
+  <div class="loading-logo-wrap" id="loading-logo">
     <img src="ms-logo.svg" alt="ModStack" class="loading-logo-img"/>
     <div class="loading-wordmark">Mod<span>Stack</span></div>
   </div>
-  <div class="loading-ring">
+  <div class="loading-ring" id="loading-ring">
     <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" width="48" height="48">
       <circle cx="24" cy="24" r="20" stroke="#242424" stroke-width="3"/>
       <circle cx="24" cy="24" r="20" stroke="#c0392b" stroke-width="3" stroke-linecap="round"
         style="transform-origin:center;stroke-dasharray:80 46;animation:spin 1.4s cubic-bezier(.4,0,.2,1) infinite;"/>
     </svg>
+  </div>
+  <div class="conn-error" id="conn-error">
+    <div class="conn-error-icon">⚠️</div>
+    <div class="conn-error-title">Connection Error</div>
+    <div class="conn-error-sub">Could not reach ModStack servers. Check your internet connection and try again.</div>
+    <button class="conn-error-btn" onclick="window.location.replace(window.location.pathname)">Retry</button>
   </div>
 </div>
 
@@ -441,9 +453,26 @@ if('serviceWorker' in navigator){
 }
 
 async function init(){
-  const {data:{session}}=await sb.auth.getSession();
-  if(session){user=session.user;await loadApp();}
-  else showAuth();
+  // 10-second timeout — if Supabase never responds, show connection error
+  const loadTimeout=setTimeout(()=>{
+    document.getElementById('loading-ring').style.display='none';
+    document.getElementById('loading-logo').style.display='none';
+    document.getElementById('conn-error').style.display='flex';
+  },10000);
+
+  try{
+    const {data:{session}}=await sb.auth.getSession();
+    clearTimeout(loadTimeout);
+    if(session){user=session.user;await loadApp();}
+    else showAuth();
+  }catch(e){
+    clearTimeout(loadTimeout);
+    document.getElementById('loading-ring').style.display='none';
+    document.getElementById('loading-logo').style.display='none';
+    document.getElementById('conn-error').style.display='flex';
+    return;
+  }
+
   sb.auth.onAuthStateChange(async(event,session)=>{
     if(event==='SIGNED_IN'&&session){user=session.user;await loadApp();}
     if(event==='SIGNED_OUT'){user=null;profile=null;cars=[];activeCar=null;filter='all';chatHistory=[];showAuth();}
@@ -486,7 +515,7 @@ function showMsg(el,msg,type){el.textContent=msg;el.className='auth-msg '+type;e
 async function doLogout(){
   if(!confirm('Sign out of ModStack?'))return;
   await sb.auth.signOut();
-  window.location.reload();
+  window.location.replace(window.location.pathname);
 }
 
 async function loadApp(){
@@ -760,8 +789,7 @@ async function sendChat(){
   showTyping();
   const car=getActiveCar();
   let ctx='';
-  // In sendChat() in app.html, replace the ctx block with this:
-if(car){
+  if(car){
   const installed = car.mods.filter(m => m.status === 'installed');
   const planned = car.mods.filter(m => m.status === 'planned');
   const inProgress = car.mods.filter(m => m.status === 'in-progress');
