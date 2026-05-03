@@ -13,6 +13,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=DM+Mono&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onerror="document.getElementById('loading-ring').style.display='none';document.getElementById('loading-logo').style.display='none';document.getElementById('conn-error').style.display='flex';"></script>
 <script defer src="/_vercel/insights/script.js"></script>
+<script defer src="/_vercel/speed-insights/script.js"></script>
 <style>
 :root{
   --black:#0a0a0a;--surface:#141414;--surface2:#1c1c1c;--surface3:#252525;
@@ -741,29 +742,51 @@ function showShareModal(){
   else generateAndShare(car);
 }
 
-function showShareUrl(slug){
-  $('share-url-text').textContent=`${window.location.origin}/build/${slug}`;
+function showShareUrl(slug) {
+    // This dynamically uses whatever domain the app is currently running on
+    const currentDomain = window.location.origin;
+    $('#share-url-text').textContent = `${currentDomain}/build/${slug}`;
 }
 
-async function generateAndShare(car){
-  const displayName=profile?.display_name||user?.email?.split('@')[0]||'builder';
-  const carYear=car.year||new Date().getFullYear();
-  try{
-    const {data:slug,error}=await sb.rpc('generate_public_slug',{car_name:car.name,owner_name:displayName,car_year:carYear});
-    const finalSlug=(!error&&slug)?slug:generateFallbackSlug(car.name,displayName);
-    await sb.from('cars').update({public_slug:finalSlug,is_public:true,made_public_at:new Date().toISOString()}).eq('id',car.id);
-    car.public_slug=finalSlug;car.is_public=true;
-    showShareUrl(finalSlug);
-  }catch(e){
-    const fallback=generateFallbackSlug(car.name,displayName);
-    $('share-url-text').textContent=`${window.location.origin}/build/${fallback}`;
-  }
-}
+async function generateAndShare(car) {
+    // 1. Determine the owner's display name
+    const displayName = profile?.display_name || user?.email?.split('@') || 'builder';
+    
+    // 2. Local Fallback Generator (Prevents the "-official" bug)
+    const getCleanSlug = (c) => {
+        const namePart = (c.name || c.make || c.model || 'build').toLowerCase().replace(/[^a-z0-9]/g, '-');
+        const ownerPart = displayName.toLowerCase().replace(/[^a-z0-9]/g, '');
+        const random = Math.random().toString(36).slice(2, 6);
+        return `${namePart}-${ownerPart}-${random}`.replace(/-+/g, '-').replace(/^-+|-+$/g, '');
+    };
 
-function generateFallbackSlug(carName,ownerName){
-  const c=carName.toLowerCase().replace(/[^a-z0-9]+/g,'-').slice(0,20);
-  const o=(ownerName||'builder').toLowerCase().replace(/[^a-z0-9]+/g,'').slice(0,10);
-  return `${c}-${o}-${Math.random().toString(36).slice(2,6)}`;
+    try {
+        // 3. Try to get a slug from the database first
+        const { data: slug, error } = await sb.rpc('generate_public_slug', {
+            car_name: car.name || 'build',
+            owner_name: displayName,
+            car_year: car.year || new Date().getFullYear()
+        });
+
+        // 4. Use DB slug or generate a local one if DB fails
+        const finalSlug = (!error && slug) ? slug : getCleanSlug(car);
+
+        // 5. Update the car record
+        await sb.from('cars').update({
+            public_slug: finalSlug,
+            is_public: true,
+            made_public_at: new Date().toISOString()
+        }).eq('id', car.id);
+
+        car.public_slug = finalSlug;
+        car.is_public = true;
+        showShareUrl(finalSlug);
+
+    } catch (e) {
+        console.error("Slug generation failed:", e);
+        const fallback = getCleanSlug(car);
+        showShareUrl(fallback);
+    }
 }
 
 function copyShareLink(){
