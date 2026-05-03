@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-title" content="ModStack"/>
 <link rel="apple-touch-icon" href="ms-logo.svg"/>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=DM+Mono&display=swap" rel="stylesheet"/>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onerror="document.getElementById('loading-ring').style.display='none';document.getElementById('loading-logo').style.display='none';document.getElementById('conn-error').style.display='flex';"></script>
 <style>
 :root{
   --black:#0a0a0a;--surface:#141414;--surface2:#1c1c1c;--surface3:#252525;
@@ -45,13 +45,18 @@ button,input,select,textarea{font-family:'DM Sans',sans-serif;font-size:15px;}
 .loading-wordmark span{color:var(--red);}
 .loading-ring{animation:fadeIn .3s .3s ease both;}
 
-/* ── CONNECTION ERROR ── */
-.conn-error{display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;padding:2rem;}
-.conn-error-icon{font-size:40px;opacity:.4;}
-.conn-error-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:1px;color:#555;}
-.conn-error-sub{font-size:13px;color:var(--muted);max-width:220px;line-height:1.6;}
-.conn-error-btn{background:var(--red);border:none;color:#fff;padding:12px 28px;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background .15s;}
-.conn-error-btn:active{background:var(--red2);}
+/* ── SERVICE UNAVAILABLE SCREEN ── */
+.conn-error{display:none;flex-direction:column;align-items:center;justify-content:center;gap:20px;text-align:center;padding:2.5rem;animation:fadeIn .4s ease;}
+.conn-error-logo{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.conn-error-logo img{width:36px;height:36px;object-fit:contain;}
+.conn-error-logo-text{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;}
+.conn-error-logo-text span{color:var(--red);}
+.conn-error-code{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;}
+.conn-error-title{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:1px;color:var(--white);line-height:1;}
+.conn-error-sub{font-size:14px;color:var(--muted);max-width:260px;line-height:1.7;}
+.conn-error-btn{background:var(--red);border:none;color:#fff;padding:13px 32px;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background .15s,transform .1s;}
+.conn-error-btn:active{background:var(--red2);transform:scale(.98);}
+.conn-error-hint{font-size:11px;color:#333;font-family:'DM Mono',monospace;letter-spacing:1px;}
 .auth-wrap{display:none;flex-direction:column;align-items:center;justify-content:center;padding:2rem;gap:1.5rem;flex:1;}
 .auth-logo-wrap{display:flex;align-items:center;gap:12px;animation:slideUp .5s ease;}
 .auth-logo-img{width:44px;height:44px;object-fit:contain;}
@@ -234,10 +239,15 @@ button,input,select,textarea{font-family:'DM Sans',sans-serif;font-size:15px;}
     </svg>
   </div>
   <div class="conn-error" id="conn-error">
-    <div class="conn-error-icon">⚠️</div>
-    <div class="conn-error-title">Connection Error</div>
-    <div class="conn-error-sub">Could not reach ModStack servers. Check your internet connection and try again.</div>
-    <button class="conn-error-btn" onclick="window.location.replace(window.location.pathname)">Retry</button>
+    <div class="conn-error-logo">
+      <img src="ms-logo.svg" alt="ModStack"/>
+      <div class="conn-error-logo-text">Mod<span>Stack</span></div>
+    </div>
+    <div class="conn-error-code">Service status</div>
+    <div class="conn-error-title">Temporarily<br/>Unavailable</div>
+    <div class="conn-error-sub">We could not establish a connection to ModStack servers. This is usually temporary.</div>
+    <button class="conn-error-btn" onclick="window.location.replace(window.location.pathname)">Try again</button>
+    <div class="conn-error-hint">If this persists, check your internet connection</div>
   </div>
 </div>
 
@@ -452,13 +462,35 @@ if('serviceWorker' in navigator){
   window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));
 }
 
+// ── GLOBAL ERROR BOUNDARY ──
+// Catches script failures, undefined references, and uncaught promise rejections
+function showServiceError(){
+  const loading=document.getElementById('loading');
+  const ring=document.getElementById('loading-ring');
+  const logo=document.getElementById('loading-logo');
+  const err=document.getElementById('conn-error');
+  if(loading)loading.style.display='flex';
+  if(ring)ring.style.display='none';
+  if(logo)logo.style.display='none';
+  if(err)err.style.display='flex';
+}
+window.onerror=function(msg,src,line,col,error){
+  // Only trigger for critical init failures, not minor runtime errors
+  if(document.getElementById('loading').style.display!=='none'||
+     document.getElementById('app-shell').style.display==='none'){
+    showServiceError();
+  }
+  return false;
+};
+window.addEventListener('unhandledrejection',function(e){
+  if(document.getElementById('app-shell').style.display==='none'){
+    showServiceError();
+  }
+});
+
 async function init(){
-  // 10-second timeout — if Supabase never responds, show connection error
-  const loadTimeout=setTimeout(()=>{
-    document.getElementById('loading-ring').style.display='none';
-    document.getElementById('loading-logo').style.display='none';
-    document.getElementById('conn-error').style.display='flex';
-  },10000);
+  // 8-second timeout — if Supabase never responds show service unavailable
+  const loadTimeout=setTimeout(()=>showServiceError(),8000);
 
   try{
     const {data:{session}}=await sb.auth.getSession();
@@ -467,9 +499,7 @@ async function init(){
     else showAuth();
   }catch(e){
     clearTimeout(loadTimeout);
-    document.getElementById('loading-ring').style.display='none';
-    document.getElementById('loading-logo').style.display='none';
-    document.getElementById('conn-error').style.display='flex';
+    showServiceError();
     return;
   }
 

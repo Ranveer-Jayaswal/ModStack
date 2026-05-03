@@ -16,7 +16,7 @@
 <meta property="twitter:description" id="tw-desc" content="Track every mod. Every dollar."/>
 <meta property="twitter:image" id="tw-image" content=""/>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=DM+Mono&display=swap" rel="stylesheet"/>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onerror="document.getElementById('loading').style.display='none';document.getElementById('not-found').style.display='flex';"></script>
 <style>
 :root{
   --black:#0a0a0a;--surface:#141414;--surface2:#1c1c1c;
@@ -329,10 +329,13 @@ async function init(){
   if(heroEl)heroEl.setAttribute('data-date',new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}));
 
   // OG tags
-  const ogTitle=`${ownerName}'s ${carName} — ModStack Build`;
-  const ogDesc=`${mods.length} mods · $${spent.toLocaleString()} spent · ${completionPct}% complete`;
+  const ogTitle=`${carName} | ModStack`;
+  const ogDesc=`View the verified build specifications for this ${carName}. ${mods.length} modifications documented · $${spent.toLocaleString()} invested.`;
+  const metaDesc=`View the verified build specs for this ${carName}.`;
   const ogImage=`${SUPABASE_URL}/functions/v1/og?slug=${slug}`;
   document.title=ogTitle;
+  const descEl=document.querySelector('meta[name="description"]');
+  if(descEl)descEl.setAttribute('content',metaDesc);
   setMeta('og-title',ogTitle);setMeta('og-desc',ogDesc);setMeta('og-image',ogImage);setMeta('og-url',window.location.href);
   setMeta('tw-title',ogTitle);setMeta('tw-desc',ogDesc);setMeta('tw-image',ogImage);
 
