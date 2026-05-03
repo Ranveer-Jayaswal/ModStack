@@ -743,49 +743,41 @@ function showShareModal(){
 }
 
 function showShareUrl(slug) {
-    // This dynamically uses whatever domain the app is currently running on
     const currentDomain = window.location.origin;
-    $('#share-url-text').textContent = `${currentDomain}/build/${slug}`;
+    // Use getElementById instead of $ to avoid the "Generating..." hang
+    const linkElement = document.getElementById('share-url-text');
+    if (linkElement) {
+        linkElement.textContent = `${currentDomain}/build/${slug}`;
+    }
 }
 
 async function generateAndShare(car) {
-    // 1. Determine the owner's display name
+    // 1. Set the loading text
+    document.getElementById('share-url-text').textContent = 'Generating your link...';
+    
     const displayName = profile?.display_name || user?.email?.split('@') || 'builder';
     
-    // 2. Local Fallback Generator (Prevents the "-official" bug)
-    const getCleanSlug = (c) => {
-        const namePart = (c.name || c.make || c.model || 'build').toLowerCase().replace(/[^a-z0-9]/g, '-');
-        const ownerPart = displayName.toLowerCase().replace(/[^a-z0-9]/g, '');
-        const random = Math.random().toString(36).slice(2, 6);
-        return `${namePart}-${ownerPart}-${random}`.replace(/-+/g, '-').replace(/^-+|-+$/g, '');
-    };
+    // 2. Build the slug locally so it's INSTANT
+    const namePart = (car.name || car.make || car.model || 'build').toLowerCase().replace(/[^a-z0-9]/g, '-');
+    const random = Math.random().toString(36).slice(2, 6);
+    const finalSlug = `${namePart}-${displayName.toLowerCase().replace(/[^a-z0-9]/g, '')}-${random}`.replace(/-+/g, '-').replace(/^-+|-+$/g, '');
 
     try {
-        // 3. Try to get a slug from the database first
-        const { data: slug, error } = await sb.rpc('generate_public_slug', {
-            car_name: car.name || 'build',
-            owner_name: displayName,
-            car_year: car.year || new Date().getFullYear()
-        });
-
-        // 4. Use DB slug or generate a local one if DB fails
-        const finalSlug = (!error && slug) ? slug : getCleanSlug(car);
-
-        // 5. Update the car record
+        // 3. Update Supabase (runs in background)
         await sb.from('cars').update({
             public_slug: finalSlug,
             is_public: true,
             made_public_at: new Date().toISOString()
         }).eq('id', car.id);
-
+        
+        // 4. Update the local car object and show the URL
         car.public_slug = finalSlug;
         car.is_public = true;
         showShareUrl(finalSlug);
-
     } catch (e) {
-        console.error("Slug generation failed:", e);
-        const fallback = getCleanSlug(car);
-        showShareUrl(fallback);
+        console.error("DB update failed, but showing slug anyway:", e);
+        // 5. Even if the database fails, we show the link so the user isn't stuck
+        showShareUrl(finalSlug);
     }
 }
 
