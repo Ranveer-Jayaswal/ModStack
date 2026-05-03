@@ -341,8 +341,8 @@ button,input,select,textarea{font-family:'DM Sans',sans-serif;font-size:15px;}
     <div class="screen" id="screen-chat" style="padding:0;margin:-16px;width:calc(100% + 32px);">
       <div class="chat-wrap">
         <div class="chat-header">
-          <div class="chat-header-title">AI Parts Advisor</div>
-          <div class="chat-header-sub">Ask about parts, mods, fitment, and builds</div>
+          <div class="chat-header-title">AI Mechanic</div>
+          <div class="chat-header-sub">Your personal mechanic. Ask anything about your build.</div>
         </div>
         <div class="chat-messages" id="chat-messages"></div>
         <div class="chat-input-row">
@@ -389,7 +389,7 @@ button,input,select,textarea{font-family:'DM Sans',sans-serif;font-size:15px;}
     <button class="nav-item active" id="nav-home" onclick="goScreen('home')"><span class="nav-icon">🏠</span><span>Home</span></button>
     <button class="nav-item" id="nav-add" onclick="goScreen('add')"><span class="nav-icon">➕</span><span>Add mod</span></button>
     <button class="nav-item" id="nav-builds" onclick="goScreen('builds')"><span class="nav-icon">🚗</span><span>Builds</span></button>
-    <button class="nav-item" id="nav-chat" onclick="goScreen('chat')"><span class="nav-icon">🤖</span><span>AI Advisor</span></button>
+    <button class="nav-item" id="nav-chat" onclick="goScreen('chat')"><span class="nav-icon">🤖</span><span>AI Mechanic</span></button>
     <button class="nav-item" id="nav-account" onclick="goScreen('account')"><span class="nav-icon">👤</span><span>Account</span></button>
   </div>
 </div>
@@ -728,7 +728,7 @@ function doPrint(){
 
 function renderChat(){
   if(chatHistory.length===0){
-    addChatBubble('ai','Hey! I\'m your AI parts advisor. Tell me about your car and what you\'re trying to build.\n\nExample: *"I have a 2022 WRX and want 50whp gain on a $2k budget"*');
+    addChatBubble('ai','Hey! I\'m your AI Mechanic. Tell me about your car and what you\'re trying to build.\n\nExample: *"I have a 2022 WRX and want 50whp gain on a $2k budget"*');
   }
 }
 
@@ -760,10 +760,28 @@ async function sendChat(){
   showTyping();
   const car=getActiveCar();
   let ctx='';
-  if(car){
-    const mods=car.mods.map(m=>`${m.name} (${m.category}, ${m.status})`).join(', ');
-    ctx=`\n\nUser's active build: ${car.name}, budget $${car.budget||0}. Mods: ${mods||'none yet'}.`;
-  }
+  // In sendChat() in app.html, replace the ctx block with this:
+if(car){
+  const installed = car.mods.filter(m => m.status === 'installed');
+  const planned = car.mods.filter(m => m.status === 'planned');
+  const inProgress = car.mods.filter(m => m.status === 'in-progress');
+  const spent = installed.reduce((s,m) => s + parseFloat(m.cost||0), 0);
+  const budgetLeft = (car.budget||0) - spent;
+  
+  ctx = `
+CURRENT BUILD:
+Vehicle: ${car.name}
+Total budget: $${car.budget || 0}
+Amount spent: $${spent.toLocaleString()}
+Budget remaining: $${Math.max(0, budgetLeft).toLocaleString()}
+
+Installed mods: ${installed.map(m => `${m.name} (${m.category})`).join(', ') || 'None yet'}
+In progress: ${inProgress.map(m => m.name).join(', ') || 'None'}
+Planned next: ${planned.map(m => `${m.name} ($${parseFloat(m.cost||0).toLocaleString()})`).join(', ') || 'None'}
+
+Use this context to give personalized, compatible recommendations.
+  `;
+}
   const messages=chatHistory.slice(-10).map(m=>({role:m.role==='ai'?'assistant':'user',content:m.text}));
   try{
     const {data:{session}}=await sb.auth.getSession();
