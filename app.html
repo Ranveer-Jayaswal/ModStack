@@ -12,8 +12,6 @@
 <link rel="apple-touch-icon" href="ms-logo.svg"/>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=DM+Mono&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onerror="document.getElementById('loading-ring').style.display='none';document.getElementById('loading-logo').style.display='none';document.getElementById('conn-error').style.display='flex';"></script>
-<script defer src="/_vercel/insights/script.js"></script>
-<script defer src="/_vercel/speed-insights/script.js"></script>
 <style>
 :root{
   --black:#0a0a0a;--surface:#141414;--surface2:#1c1c1c;--surface3:#252525;
@@ -149,7 +147,16 @@ button,input,select,textarea{font-family:'DM Sans',sans-serif;font-size:15px;}
 .build-card.active-build{border-color:var(--red);}
 .build-card-name{font-size:16px;font-weight:500;}
 .build-card-meta{font-size:12px;color:var(--muted);margin-top:3px;font-family:'DM Mono',monospace;}
-.build-card-right{display:flex;align-items:center;gap:10px;}
+.build-card-right{display:flex;align-items:center;gap:8px;}
+.build-share-btn{background:rgba(192,57,43,.1);border:1px solid rgba(192,57,43,.25);color:var(--red2);padding:6px 12px;border-radius:6px;font-size:11px;font-family:'DM Mono',monospace;letter-spacing:1px;cursor:pointer;white-space:nowrap;transition:all .2s;flex-shrink:0;}
+.build-share-btn:active{background:rgba(192,57,43,.2);}
+/* Home screen share strip */
+.home-share-strip{display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 15px;margin-bottom:14px;}
+.home-share-strip-left{display:flex;flex-direction:column;gap:2px;}
+.home-share-strip-label{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;}
+.home-share-strip-url{font-size:12px;color:var(--text);font-family:'DM Mono',monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px;}
+.home-share-btn{background:var(--red);border:none;color:#fff;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;transition:background .15s,transform .1s;flex-shrink:0;}
+.home-share-btn:active{background:var(--red2);transform:scale(.97);}
 .build-del{background:none;border:none;color:#333;cursor:pointer;font-size:22px;line-height:1;padding:4px;transition:color .15s;}
 .build-del:active{color:var(--red2);}
 .add-build-form{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-top:8px;}
@@ -326,9 +333,17 @@ button,input,select,textarea{font-family:'DM Sans',sans-serif;font-size:15px;}
           <button class="filter-btn" onclick="setFilter('in-progress',this)">IN PROGRESS</button>
           <button class="filter-btn" onclick="setFilter('installed',this)">INSTALLED</button>
         </div>
+        <!-- Share strip — shows build link or invite to share -->
+        <div class="home-share-strip" id="home-share-strip">
+          <div class="home-share-strip-left">
+            <div class="home-share-strip-label">PUBLIC BUILD LINK</div>
+            <div class="home-share-strip-url" id="home-share-url">Tap to generate →</div>
+          </div>
+          <button class="home-share-btn" onclick="showShareModal()">Share build</button>
+        </div>
         <div class="mod-list" id="mod-list"></div>
-      </div>
-    </div>
+      </div><!-- end home-content -->
+    </div><!-- end screen-home -->
 
     <!-- ADD MOD -->
     <div class="screen" id="screen-add">
@@ -423,10 +438,11 @@ button,input,select,textarea{font-family:'DM Sans',sans-serif;font-size:15px;}
   <div class="sheet">
     <div class="sheet-handle"></div>
     <h3>Share your build</h3>
-    <p>A public page anyone can view. One link.</p>
+    <p>Your public build page — shareable anywhere.</p>
     <div class="share-url-box" id="share-url-text">Generating your link…</div>
     <div class="sheet-btns">
       <button class="sheet-btn sheet-btn-primary" id="copy-btn" onclick="copyShareLink()">Copy link</button>
+      <button class="sheet-btn" style="background:var(--surface2);color:var(--white);border:1px solid var(--border);" onclick="openShareLink()">Open link →</button>
       <button class="sheet-btn sheet-btn-secondary" onclick="closeSheets()">Close</button>
     </div>
   </div>
@@ -600,6 +616,17 @@ function renderHome(){
   if(!car)return;
   renderCarTabs();
   $('budget-in').value=car.budget||5000;
+  // Update home share strip
+  const urlEl=$('home-share-url');
+  if(urlEl){
+    if(car.public_slug){
+      urlEl.textContent=`${window.location.host}/build/${car.public_slug}`;
+      urlEl.style.color='var(--green)';
+    } else {
+      urlEl.textContent='Tap to generate your link →';
+      urlEl.style.color='';
+    }
+  }
   renderStats();renderMods();
 }
 
@@ -655,13 +682,15 @@ function renderBuilds(){
   if(cars.length===0){el.innerHTML='<div class="no-mods" style="margin-bottom:10px;">No builds yet</div>';return;}
   el.innerHTML=cars.map((c,i)=>{
     const spent=c.mods.filter(m=>m.status==='installed').reduce((s,m)=>s+parseFloat(m.cost||0),0);
-    return `<div class="build-card${c.id===activeCar?' active-build':''}" style="animation-delay:${i*0.05}s" onclick="selectBuild(${c.id})">
-      <div>
+    const isActive=c.id===activeCar;
+    const slugLabel=c.public_slug?`/${c.public_slug}`:'Share';
+    return `<div class="build-card${isActive?' active-build':''}" style="animation-delay:${i*0.05}s" onclick="selectBuild(${c.id})">
+      <div style="min-width:0;flex:1;">
         <div class="build-card-name">${esc(c.name)}</div>
         <div class="build-card-meta">${c.mods.length} mods · $${spent.toLocaleString()} spent</div>
       </div>
       <div class="build-card-right">
-        ${c.id===activeCar?`<span style="font-size:10px;color:var(--red);font-family:'DM Mono',monospace;letter-spacing:1px;">ACTIVE</span>`:''}
+        <button class="build-share-btn" onclick="shareFromCard(${c.id},event)">🔗 ${c.public_slug?'Link':'Share'}</button>
         <button class="build-del" onclick="deleteCar(${c.id},event)">×</button>
       </div>
     </div>`;
@@ -736,49 +765,63 @@ function setFilter(f,el){
 function showShareModal(){
   const car=getActiveCar();
   if(!car){toast('Select a build first');return;}
+  openShareSheet(car);
+}
+
+// Share directly from a build card — sets that car as active first
+async function shareFromCard(carId, e){
+  e.stopPropagation();
+  activeCar=carId;
+  renderHome();
+  const car=getActiveCar();
+  if(!car)return;
+  openShareSheet(car);
+}
+
+function openShareSheet(car){
   $('share-url-text').textContent='Generating your link…';
+  $('copy-btn').textContent='Copy link';
   $('share-overlay').style.display='flex';
   if(car.public_slug)showShareUrl(car.public_slug);
   else generateAndShare(car);
 }
 
-function showShareUrl(slug) {
-    const currentDomain = window.location.origin;
-    // Use getElementById instead of $ to avoid the "Generating..." hang
-    const linkElement = document.getElementById('share-url-text');
-    if (linkElement) {
-        linkElement.textContent = `${currentDomain}/build/${slug}`;
-    }
+function showShareUrl(slug){
+  const url=`${window.location.origin}/build/${slug}`;
+  $('share-url-text').textContent=url;
+  // Refresh home strip so it shows the new link immediately
+  const urlEl=$('home-share-url');
+  if(urlEl){
+    urlEl.textContent=`${window.location.host}/build/${slug}`;
+    urlEl.style.color='var(--green)';
+  }
 }
 
-async function generateAndShare(car) {
-    document.getElementById('share-url-text').textContent = 'Generating your link...';
-    
-    // 1. Get a clean owner name (no @domain.com)
-    const rawOwner = profile?.display_name || user?.email || 'builder';
-    const cleanOwner = rawOwner.split('@').toLowerCase().replace(/[^a-z0-9]/g, '');
-    
-    // 2. Get the car info (Year Make Model)
-    const carInfo = `${car.year || ''} ${car.make || ''} ${car.model || ''}`.trim();
-    const namePart = (carInfo || car.name || 'build').toLowerCase().replace(/[^a-z0-9]/g, '-');
-    
-    // 3. Create the final clean slug
-    const random = Math.random().toString(36).slice(2, 6);
-    const finalSlug = `${namePart}-${cleanOwner}-${random}`.replace(/-+/g, '-').replace(/^-+|-+$/g, '');
+function openShareLink(){
+  const url=$('share-url-text').textContent;
+  if(!url||url==='Generating your link…')return;
+  window.open(url,'_blank');
+}
 
-    try {
-        // 4. Force update the database with the NEW clean slug
-        await sb.from('cars').update({
-            public_slug: finalSlug,
-            is_public: true,
-            made_public_at: new Date().toISOString()
-        }).eq('id', car.id);
-        
-        car.public_slug = finalSlug;
-        showShareUrl(finalSlug);
-    } catch (e) {
-        showShareUrl(finalSlug);
-    }
+async function generateAndShare(car){
+  const displayName=profile?.display_name||user?.email?.split('@')[0]||'builder';
+  const carYear=car.year||new Date().getFullYear();
+  try{
+    const {data:slug,error}=await sb.rpc('generate_public_slug',{car_name:car.name,owner_name:displayName,car_year:carYear});
+    const finalSlug=(!error&&slug)?slug:generateFallbackSlug(car.name,displayName);
+    await sb.from('cars').update({public_slug:finalSlug,is_public:true,made_public_at:new Date().toISOString()}).eq('id',car.id);
+    car.public_slug=finalSlug;car.is_public=true;
+    showShareUrl(finalSlug);
+  }catch(e){
+    const fallback=generateFallbackSlug(car.name,displayName);
+    $('share-url-text').textContent=`${window.location.origin}/build/${fallback}`;
+  }
+}
+
+function generateFallbackSlug(carName,ownerName){
+  const c=carName.toLowerCase().replace(/[^a-z0-9]+/g,'-').slice(0,20);
+  const o=(ownerName||'builder').toLowerCase().replace(/[^a-z0-9]+/g,'').slice(0,10);
+  return `${c}-${o}-${Math.random().toString(36).slice(2,6)}`;
 }
 
 function copyShareLink(){
@@ -836,26 +879,9 @@ async function sendChat(){
   const car=getActiveCar();
   let ctx='';
   if(car){
-  const installed = car.mods.filter(m => m.status === 'installed');
-  const planned = car.mods.filter(m => m.status === 'planned');
-  const inProgress = car.mods.filter(m => m.status === 'in-progress');
-  const spent = installed.reduce((s,m) => s + parseFloat(m.cost||0), 0);
-  const budgetLeft = (car.budget||0) - spent;
-  
-  ctx = `
-CURRENT BUILD:
-Vehicle: ${car.name}
-Total budget: $${car.budget || 0}
-Amount spent: $${spent.toLocaleString()}
-Budget remaining: $${Math.max(0, budgetLeft).toLocaleString()}
-
-Installed mods: ${installed.map(m => `${m.name} (${m.category})`).join(', ') || 'None yet'}
-In progress: ${inProgress.map(m => m.name).join(', ') || 'None'}
-Planned next: ${planned.map(m => `${m.name} ($${parseFloat(m.cost||0).toLocaleString()})`).join(', ') || 'None'}
-
-Use this context to give personalized, compatible recommendations.
-  `;
-}
+    const mods=car.mods.map(m=>`${m.name} (${m.category}, ${m.status})`).join(', ');
+    ctx=`\n\nUser's active build: ${car.name}, budget $${car.budget||0}. Mods: ${mods||'none yet'}.`;
+  }
   const messages=chatHistory.slice(-10).map(m=>({role:m.role==='ai'?'assistant':'user',content:m.text}));
   try{
     const {data:{session}}=await sb.auth.getSession();
