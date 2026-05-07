@@ -17,8 +17,6 @@
 <meta property="twitter:image" id="tw-image" content=""/>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=DM+Mono&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onerror="document.getElementById('loading').style.display='none';document.getElementById('not-found').style.display='flex';"></script>
-<script defer src="/_vercel/insights/script.js"></script>
-<script defer src="/_vercel/speed-insights/script.js"></script>
 <style>
 :root{
   --black:#0a0a0a;--surface:#141414;--surface2:#1c1c1c;
@@ -104,7 +102,14 @@ body{background:var(--black);color:var(--white);font-family:'DM Sans',sans-serif
 .cta-btn:hover{background:var(--red2);transform:translateY(-1px);}
 .view-count{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;}
 
-/* ── EMPTY STATE ── */
+/* ── 3D MODEL VIEWER ── */
+.model-section{margin:0 0 40px;animation:fadeIn .6s ease both;}
+.model-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.model-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;}
+.model-badge{font-size:10px;font-family:'DM Mono',monospace;letter-spacing:2px;color:var(--muted);background:var(--surface2);border:1px solid var(--border);padding:3px 10px;border-radius:10px;}
+.model-frame-wrap{position:relative;width:100%;padding-bottom:56.25%;border-radius:12px;overflow:hidden;background:var(--surface);border:1px solid var(--border);}
+.model-frame-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:none;}
+.model-hint{font-size:11px;color:var(--muted);margin-top:8px;font-family:'DM Mono',monospace;letter-spacing:.5px;text-align:center;}
 .empty-build{text-align:center;padding:48px 24px;border:1px dashed #2a2a2a;border-radius:12px;margin-bottom:40px;}
 .empty-build-icon{font-size:40px;opacity:.3;margin-bottom:12px;}
 .empty-build-title{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1px;color:#333;margin-bottom:6px;}
@@ -251,6 +256,17 @@ body{background:var(--black);color:var(--white);font-family:'DM Sans',sans-serif
   </section>
 
   <main class="main">
+    <!-- 3D MODEL — injected by JS if car found on Sketchfab -->
+    <div id="model-section" style="display:none;" class="model-section">
+      <div class="model-header">
+        <div class="model-title">3D Model</div>
+        <div class="model-badge">INTERACTIVE · DRAG TO ROTATE</div>
+      </div>
+      <div class="model-frame-wrap">
+        <iframe id="model-iframe" allow="autoplay; fullscreen; xr-spatial-tracking" allowfullscreen></iframe>
+      </div>
+      <div class="model-hint">Scroll to zoom · Click and drag to rotate</div>
+    </div>
     <div id="mods-section">
       <div class="section-head fade">
         <div class="section-title">Modification History</div>
@@ -330,6 +346,9 @@ async function init(){
   const heroEl=document.getElementById('hero');
   if(heroEl)heroEl.setAttribute('data-date',new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}));
 
+  // Inject 3D model if available
+  injectSketchfabModel(carName);
+
   // OG tags
   const ogTitle=`${carName} | ModStack`;
   const ogDesc=`View the verified build specifications for this ${carName}. ${mods.length} modifications documented · $${spent.toLocaleString()} invested.`;
@@ -403,6 +422,81 @@ function show404(){
 
 function setMeta(id,content){const el=document.getElementById(id);if(el)el.setAttribute('content',content);}
 function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+/* ── SKETCHFAB AUTOMATIC SEARCH ──
+   Uses Sketchfab's public search API to find the best matching
+   3D model for any car name automatically. No lookup table needed.
+   API docs: https://sketchfab.com/developers/data-api/v3
+*/
+
+// Clean the car name into a good search query
+// "2004 Honda CRV" -> "Honda CRV"
+// "2022 Subaru WRX STI" -> "Subaru WRX"
+function buildSearchQuery(carName){
+  if(!carName)return null;
+  // Strip year
+  const noYear=carName.replace(/\b(19|20)\d{2}\b/g,'').trim();
+  // Take first 3 words max to keep search focused
+  const words=noYear.split(/\s+/).filter(Boolean).slice(0,3);
+  return words.join(' ');
+}
+
+async function injectSketchfabModel(carName){
+  const query=buildSearchQuery(carName);
+  if(!query)return;
+
+  const section=document.getElementById('model-section');
+  const iframe=document.getElementById('model-iframe');
+  if(!section||!iframe)return;
+
+  try{
+    // Search Sketchfab public API — no auth needed for basic search
+    // Results filtered to: downloadable=false (embeddable), type=models, sorted by likeCount
+    const apiUrl=`https://api.sketchfab.com/v3/search?`+
+      `type=models`+
+      `&q=${encodeURIComponent(query + ' car')}`+
+      `&count=5`+
+      `&sort_by=-likeCount`+           // most liked = highest quality
+      `&min_face_count=1000`+          // skip empty/broken models
+      `&license=by,by-sa,by-nd,by-nc,by-nc-sa,by-nc-nd,cc0`+ // only CC licensed
+      `&is_published=true`;
+
+    const res=await fetch(apiUrl);
+    if(!res.ok)return;
+    const data=await res.json();
+
+    const results=data?.results;
+    if(!results||results.length===0)return;
+
+    // Pick the best result — most liked model that has an embedUrl
+    const model=results.find(m=>m.embedUrl)||results[0];
+    if(!model?.uid)return;
+
+    // Build embed URL with dark theme, no watermark, no extra UI
+    const embedUrl=`https://sketchfab.com/models/${model.uid}/embed?`+
+      `autostart=0`+
+      `&ui_controls=1`+
+      `&ui_infos=0`+
+      `&ui_watermark=0`+
+      `&ui_stop=0`+
+      `&ui_theme=dark`+
+      `&camera=0`+
+      `&preload=1`;
+
+    iframe.src=embedUrl;
+    section.style.display='block';
+
+    // Update badge with model name so user knows what they're looking at
+    const badge=section.querySelector('.model-badge');
+    if(badge&&model.name){
+      badge.textContent=model.name.slice(0,40)+(model.name.length>40?'…':'');
+    }
+
+  }catch(e){
+    // Sketchfab unavailable or no results — silently do nothing
+    // The section stays hidden, page looks normal
+  }
+}
 
 init();
 </script>
