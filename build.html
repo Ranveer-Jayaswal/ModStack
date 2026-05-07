@@ -80,6 +80,7 @@ body{background:var(--black);color:var(--white);font-family:'DM Sans',sans-serif
 .mod-info{flex:1;min-width:0;}
 .mod-name{font-size:15px;font-weight:500;color:var(--white);}
 .mod-cat{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:.5px;margin-top:2px;}
+.mod-note{font-size:12px;color:#555;margin-top:5px;line-height:1.5;font-style:italic;}
 .mod-cost{font-size:15px;font-weight:500;color:var(--text);flex-shrink:0;}
 .mod-badge{font-size:10px;padding:3px 9px;border-radius:20px;font-family:'DM Mono',monospace;flex-shrink:0;}
 .b-installed{background:rgba(26,158,105,.15);color:#1a9e69;}
@@ -198,6 +199,7 @@ body{background:var(--black);color:var(--white);font-family:'DM Sans',sans-serif
   .mod-card{background:#fff !important;border:1pt solid #e8e8e8 !important;border-radius:4pt !important;padding:8pt 12pt !important;page-break-inside:avoid;break-inside:avoid;}
   .mod-name{font-size:11pt !important;color:#111 !important;}
   .mod-cat{font-size:8pt !important;color:#888 !important;}
+  .mod-note{font-size:8pt !important;color:#999 !important;font-style:italic !important;}
   .mod-cost{font-size:11pt !important;color:#333 !important;font-weight:600 !important;}
   .b-installed{background:#e8f8f2 !important;color:#0f6e56 !important;}
   .b-planned{background:#fef9e7 !important;color:#9a6a00 !important;}
@@ -321,7 +323,7 @@ async function init(){
 
   const {data:car,error}=await sb
     .from('cars')
-    .select(`id,name,make,model,year,color,budget,description,public_slug,public_views,made_public_at,profiles!cars_user_id_fkey(display_name,email),mods(id,name,category,cost,status)`)
+    .select(`id,name,make,model,year,color,budget,description,public_slug,public_views,made_public_at,profiles!cars_user_id_fkey(display_name,email),mods(id,name,category,cost,status,note)`)
     .eq('public_slug',slug)
     .eq('is_public',true)
     .single();
@@ -385,11 +387,22 @@ async function init(){
       const bc=m.status==='installed'?'b-installed':m.status==='planned'?'b-planned':'b-progress';
       const bl=m.status==='in-progress'?'in progress':m.status;
       const color=CAT_COLORS[m.category]||'#555';
+      const cost=parseFloat(m.cost||0);
       return `<div class="mod-card" style="animation:fadeIn .4s ${i*0.04}s ease both;opacity:0;">
-        <div class="mod-cat-dot" style="background:${color};"></div>
-        <div class="mod-info"><div class="mod-name">${esc(m.name)}</div><div class="mod-cat">${esc(m.category)}</div></div>
-        <div class="mod-cost">$${parseFloat(m.cost||0).toLocaleString()}</div>
-        <span class="mod-badge ${bc}">${bl}</span>
+        <div class="mod-cat-dot" style="background:${color};flex-shrink:0;margin-top:3px;"></div>
+        <div class="mod-info" style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
+            <div>
+              <div class="mod-name">${esc(m.name)}</div>
+              <div class="mod-cat">${esc(m.category)}</div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;">
+              <div class="mod-cost">$${cost.toLocaleString()}</div>
+              <span class="mod-badge ${bc}">${bl}</span>
+            </div>
+          </div>
+          ${m.note?`<div class="mod-note">${esc(m.note)}</div>`:''}
+        </div>
       </div>`;
     }).join('');
 
