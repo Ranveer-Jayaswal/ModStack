@@ -805,23 +805,43 @@ function openShareLink(){
 
 async function generateAndShare(car){
   const displayName=profile?.display_name||user?.email?.split('@')[0]||'builder';
-  const carYear=car.year||new Date().getFullYear();
+  // Extract year from car name string if not in year column (e.g. "2004 Honda CRV" -> 2004)
+  const yearMatch=car.name.match(/\b(19|20)\d{2}\b/);
+  const carYear=car.year||(yearMatch?parseInt(yearMatch[0]):null);
   try{
     const {data:slug,error}=await sb.rpc('generate_public_slug',{car_name:car.name,owner_name:displayName,car_year:carYear});
-    const finalSlug=(!error&&slug)?slug:generateFallbackSlug(car.name,displayName);
-    await sb.from('cars').update({public_slug:finalSlug,is_public:true,made_public_at:new Date().toISOString()}).eq('id',car.id);
-    car.public_slug=finalSlug;car.is_public=true;
-    showShareUrl(finalSlug);
+    if(!error&&slug&&slug.length>3&&!slug.startsWith('-')){
+      await sb.from('cars').update({public_slug:slug,is_public:true,made_public_at:new Date().toISOString()}).eq('id',car.id);
+      car.public_slug=slug;car.is_public=true;
+      showShareUrl(slug);
+    } else {
+      // Supabase function failed — use client fallback
+      const fallback=generateFallbackSlug(car.name,displayName);
+      await sb.from('cars').update({public_slug:fallback,is_public:true,made_public_at:new Date().toISOString()}).eq('id',car.id);
+      car.public_slug=fallback;car.is_public=true;
+      showShareUrl(fallback);
+    }
   }catch(e){
     const fallback=generateFallbackSlug(car.name,displayName);
-    $('share-url-text').textContent=`${window.location.origin}/build/${fallback}`;
+    await sb.from('cars').update({public_slug:fallback,is_public:true,made_public_at:new Date().toISOString()}).eq('id',car.id);
+    car.public_slug=fallback;car.is_public=true;
+    showShareUrl(fallback);
   }
 }
 
 function generateFallbackSlug(carName,ownerName){
-  const c=carName.toLowerCase().replace(/[^a-z0-9]+/g,'-').slice(0,20);
-  const o=(ownerName||'builder').toLowerCase().replace(/[^a-z0-9]+/g,'').slice(0,10);
-  return `${c}-${o}-${Math.random().toString(36).slice(2,6)}`;
+  // Clean the full car name: "2004 Honda CRV" -> "2004-honda-crv"
+  const c=carName.toLowerCase()
+    .replace(/[^a-z0-9]+/g,'-')
+    .replace(/^-+|-+$/g,'')  // trim leading/trailing dashes
+    .slice(0,28);
+  const o=(ownerName||'builder').toLowerCase()
+    .replace(/[^a-z0-9]+/g,'-')
+    .replace(/^-+|-+$/g,'')
+    .slice(0,12);
+  const rand=Math.random().toString(36).slice(2,5);
+  // Result: "2004-honda-crv-ranveer-a3f"
+  return `${c}-${o}-${rand}`;
 }
 
 function copyShareLink(){
