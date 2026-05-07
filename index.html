@@ -4,660 +4,534 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>ModStack — Your Build Has a Story. Now It Has Proof.</title>
-<meta name="description" content="ModStack is the verification standard for modified cars. Log every modification, track every dollar, and share a verified public build profile in under 60 seconds. Free forever."/>
+<meta name="description" content="ModStack is the verification standard for modified cars. Track every mod, every dollar. Share your verified build in 60 seconds. Free forever."/>
 <meta name="robots" content="index, follow"/>
 <meta name="author" content="ModStack"/>
 <meta property="og:title" content="ModStack — Your Build Has a Story. Now It Has Proof."/>
-<meta property="og:description" content="The verification standard for modified cars. Log mods, track spend, share your verified build profile. Free forever."/>
+<meta property="og:description" content="The verification standard for modified cars. Free forever."/>
 <meta property="og:type" content="website"/>
 <meta property="og:site_name" content="ModStack"/>
 <meta property="twitter:card" content="summary_large_image"/>
-<meta property="twitter:title" content="ModStack — Your Build Has a Story. Now It Has Proof."/>
-<meta property="twitter:description" content="The verification standard for modified cars. Free forever."/>
 <link rel="manifest" href="manifest.json"/>
-<meta name="theme-color" content="#0a0a0a"/>
+<meta name="theme-color" content="#0d0d0d"/>
 <link rel="apple-touch-icon" href="ms-logo.svg"/>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono&display=swap" rel="stylesheet"/>
 <style>
 :root{
-  --black:#080808;--white:#f0ede8;--red:#c0392b;--red2:#e74c3c;
-  --surface:#111;--surface2:#161616;--border:#1e1e1e;
-  --muted:#555;--text:#999;--amber:#f39c12;--green:#1a9e69;
+  --black:#0d0d0d;--white:#f0ede8;--off:#f8f6f3;
+  --red:#c0392b;--red2:#e74c3c;--red-soft:#f9eceb;
+  --surface:#161616;--surface2:#1e1e1e;--border:#222;
+  --muted:#666;--text:#aaa;--green:#1a9e69;--amber:#f39c12;
+  --shadow:0 2px 24px rgba(0,0,0,.35);
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
 body{background:var(--black);color:var(--white);font-family:'DM Sans',sans-serif;overflow-x:hidden;}
+img{display:block;}
+a{text-decoration:none;}
 
-/* ── NAV — minimal, editorial ── */
-.nav{
-  position:fixed;top:0;left:0;right:0;z-index:200;
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 2rem;height:56px;
-  border-bottom:1px solid var(--border);
-  background:rgba(8,8,8,.95);
-  backdrop-filter:blur(16px);
-}
-.nav-left{display:flex;align-items:center;gap:10px;}
-.nav-logo-img{width:24px;height:24px;object-fit:contain;}
-.nav-logo-text{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:var(--white);}
-.nav-logo-text span{color:var(--red);}
-.nav-right{display:flex;align-items:center;gap:1.5rem;}
-.nav-link{color:var(--muted);text-decoration:none;font-size:13px;font-family:'DM Mono',monospace;letter-spacing:1px;transition:color .2s;}
-.nav-link:hover{color:var(--white);}
-.nav-cta{
-  background:var(--red);color:#fff;
-  padding:8px 18px;border-radius:3px;
-  text-decoration:none;font-size:13px;font-weight:500;
-  transition:background .2s;letter-spacing:.3px;
-}
-.nav-cta:hover{background:var(--red2);}
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:var(--black);}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
 
-/* ── ISSUE NUMBER — editorial detail ── */
-.issue-bar{
-  margin-top:56px;
-  display:flex;align-items:center;justify-content:space-between;
-  padding:10px 2rem;
-  border-bottom:1px solid var(--border);
-  background:var(--surface);
-}
-.issue-tag{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--muted);}
-.issue-free{display:flex;align-items:center;gap:8px;font-family:'DM Mono',monospace;font-size:10px;color:var(--green);letter-spacing:2px;}
-.issue-dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 2s ease infinite;}
-@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+/* ── NAV ── */
+.nav{position:fixed;top:0;left:0;right:0;z-index:300;height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 2.5rem;background:rgba(13,13,13,.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);transition:box-shadow .3s;}
+.nav.scrolled{box-shadow:0 1px 30px rgba(0,0,0,.5);}
+.nav-brand{display:flex;align-items:center;gap:10px;}
+.nav-brand img{width:28px;height:28px;object-fit:contain;}
+.nav-brand-text{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--white);}
+.nav-brand-text span{color:var(--red);}
+.nav-links{display:flex;align-items:center;gap:2rem;}
+.nav-links a{color:var(--muted);font-size:13px;font-weight:500;transition:color .2s;}
+.nav-links a:hover{color:var(--white);}
+.nav-btn{background:var(--red);color:#fff;padding:9px 22px;border-radius:6px;font-size:13px;font-weight:600;transition:background .15s,transform .1s;letter-spacing:.2px;}
+.nav-btn:hover{background:var(--red2);transform:translateY(-1px);}
 
-/* ── HERO — editorial magazine cover ── */
-.hero{
-  display:grid;
-  grid-template-columns:1fr 420px;
-  min-height:calc(100vh - 90px);
-  border-bottom:1px solid var(--border);
-}
+/* ── HERO ── */
+.hero{padding:130px 2.5rem 80px;display:grid;grid-template-columns:1fr 480px;gap:4rem;align-items:center;max-width:1200px;margin:0 auto;min-height:100vh;}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;background:rgba(192,57,43,.1);border:1px solid rgba(192,57,43,.25);color:var(--red2);font-size:11px;font-family:'DM Mono',monospace;letter-spacing:2.5px;padding:5px 14px;border-radius:4px;margin-bottom:1.5rem;}
+.hero-eyebrow-dot{width:5px;height:5px;background:var(--red);border-radius:50%;animation:pulse 2s ease infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(56px,7vw,96px);line-height:.92;letter-spacing:1px;margin-bottom:1.5rem;}
+.hero h1 em{color:var(--red);font-style:normal;display:block;}
+.hero-sub{font-size:17px;color:var(--text);font-weight:300;line-height:1.7;margin-bottom:2rem;max-width:420px;}
+.hero-actions{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:2.5rem;}
+.btn-red{background:var(--red);color:#fff;padding:14px 28px;border-radius:8px;font-size:15px;font-weight:600;transition:all .15s;display:inline-block;}
+.btn-red:hover{background:var(--red2);transform:translateY(-2px);box-shadow:0 8px 24px rgba(192,57,43,.3);}
+.btn-ghost{border:1px solid var(--border);color:var(--text);padding:14px 28px;border-radius:8px;font-size:15px;font-weight:500;transition:all .15s;display:inline-block;}
+.btn-ghost:hover{border-color:#444;color:var(--white);}
+.hero-trust{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);}
+.hero-trust-dot{width:4px;height:4px;background:var(--green);border-radius:50%;}
 
-/* LEFT — big type, full height */
-.hero-left{
-  padding:3rem 2rem 3rem;
-  display:flex;
-  flex-direction:column;
-  justify-content:space-between;
-  border-right:1px solid var(--border);
-  position:relative;
-  overflow:hidden;
-}
-.hero-left::before{
-  content:'';
-  position:absolute;
-  bottom:0;left:0;right:0;
-  height:60%;
-  background:radial-gradient(ellipse at 30% 100%,rgba(192,57,43,.08) 0%,transparent 60%);
-  pointer-events:none;
-}
-.hero-kicker{
-  font-family:'DM Mono',monospace;
-  font-size:10px;letter-spacing:3px;
-  color:var(--red);
-  text-transform:uppercase;
-  margin-bottom:1.5rem;
-}
-.hero-h1{
-  font-family:'Bebas Neue',sans-serif;
-  font-size:clamp(72px,9vw,130px);
-  line-height:.88;
-  letter-spacing:1px;
-  margin-bottom:auto;
-  padding-bottom:3rem;
-}
-.hero-h1 em{color:var(--red);font-style:normal;}
-.hero-bottom{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:1px;
-  background:var(--border);
-  margin:-2rem;
-  margin-top:0;
-}
-.hero-bottom-cell{
-  background:var(--black);
-  padding:1.5rem 2rem;
-}
-.hero-bottom-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--muted);margin-bottom:.5rem;text-transform:uppercase;}
-.hero-bottom-val{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:1px;color:var(--white);}
-.hero-bottom-val.red{color:var(--red);}
-.hero-bottom-desc{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.5;}
+/* HERO CARD */
+.hero-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:var(--shadow);}
+.hero-card-bar{background:var(--surface2);padding:12px 16px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);}
+.hcb-dot{width:10px;height:10px;border-radius:50%;}
+.hcb-url{font-family:'DM Mono',monospace;font-size:10px;color:#333;margin-left:8px;flex:1;background:var(--black);padding:4px 10px;border-radius:4px;border:1px solid var(--border);}
+.hero-card-body{padding:20px;}
+.hc-logo-row{display:flex;align-items:center;gap:8px;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border);}
+.hc-logo-row img{width:20px;height:20px;object-fit:contain;}
+.hc-logo-text{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;}
+.hc-logo-text span{color:var(--red);}
+.hc-car{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;margin-bottom:14px;}
+.hc-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+.hc-stat{background:var(--surface2);border-radius:8px;padding:10px;}
+.hc-stat-l{font-size:9px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:3px;}
+.hc-stat-v{font-size:15px;font-weight:600;}
+.hc-prog{height:3px;background:var(--border);border-radius:99px;overflow:hidden;margin-bottom:14px;}
+.hc-prog-fill{height:100%;width:65%;background:linear-gradient(90deg,var(--red),var(--amber));border-radius:99px;}
+.hc-mod{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);}
+.hc-mod:last-child{border-bottom:none;}
+.hc-mod-name{font-size:12px;font-weight:500;}
+.hc-mod-cat{font-size:9px;color:var(--muted);margin-top:1px;}
+.hc-badge{font-size:9px;padding:2px 7px;border-radius:3px;font-family:'DM Mono',monospace;}
+.b-i{background:rgba(26,158,105,.15);color:#1a9e69;}
+.b-p{background:rgba(243,156,18,.1);color:#f39c12;}
+.b-ip{background:rgba(52,152,219,.1);color:#3498db;}
 
-/* RIGHT — live app preview + CTA */
-.hero-right{
-  display:flex;
-  flex-direction:column;
-}
-.hero-right-top{
-  flex:1;
-  padding:2rem 1.5rem;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  gap:1rem;
-  border-bottom:1px solid var(--border);
-}
-.hero-right-desc{
-  font-size:15px;color:var(--text);line-height:1.7;font-weight:300;
-  padding-bottom:1rem;
-  border-bottom:1px solid var(--border);
-  margin-bottom:.5rem;
-}
-.hero-right-desc strong{color:var(--white);font-weight:500;}
-
-/* Mini app mockup */
-.mini-app{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
-.mini-app-bar{background:var(--surface2);padding:8px 12px;display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--border);}
-.mini-dot{width:7px;height:7px;border-radius:50%;}
-.mini-url{font-family:'DM Mono',monospace;font-size:9px;color:#333;margin-left:6px;}
-.mini-body{padding:14px;}
-.mini-car-name{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:1px;margin-bottom:10px;}
-.mini-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px;}
-.mini-stat{background:var(--surface2);border-radius:5px;padding:8px;}
-.mini-stat-l{font-size:8px;color:var(--muted);margin-bottom:2px;font-family:'DM Mono',monospace;}
-.mini-stat-v{font-size:14px;font-weight:500;}
-.mini-prog{height:3px;background:var(--surface2);border-radius:99px;overflow:hidden;margin-bottom:10px;}
-.mini-prog-fill{height:100%;width:62%;background:linear-gradient(90deg,var(--red),var(--amber));border-radius:99px;}
-.mini-mod{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);}
-.mini-mod:last-child{border-bottom:none;}
-.mini-mod-name{font-size:11px;font-weight:500;}
-.mini-mod-cat{font-size:9px;color:var(--muted);margin-top:1px;}
-.mini-badge{font-size:8px;padding:2px 6px;border-radius:2px;}
-.b-inst{background:rgba(26,158,105,.15);color:#1a9e69;}
-.b-plan{background:rgba(243,156,18,.1);color:#f39c12;}
-.b-prog{background:rgba(52,152,219,.1);color:#3498db;}
-
-.hero-right-cta{padding:1.5rem;}
-.cta-main{
-  display:block;width:100%;
-  background:var(--red);color:#fff;
-  padding:15px;border-radius:4px;
-  text-align:center;font-size:15px;font-weight:500;
-  text-decoration:none;
-  transition:background .15s,transform .1s;
-  margin-bottom:10px;
-}
-.cta-main:active{transform:scale(.99);}
-.cta-main:hover{background:var(--red2);}
-.cta-sub{font-size:11px;color:var(--muted);text-align:center;font-family:'DM Mono',monospace;letter-spacing:1px;}
-
-/* ── TICKER — scrolling social proof ── */
-.ticker{
-  overflow:hidden;
-  border-bottom:1px solid var(--border);
-  background:var(--surface);
-  padding:10px 0;
-  white-space:nowrap;
-}
-.ticker-inner{display:inline-flex;gap:3rem;animation:ticker 30s linear infinite;}
-.ticker-inner:hover{animation-play-state:paused;}
+/* ── TICKER ── */
+.ticker{overflow:hidden;border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:12px 0;background:var(--surface);}
+.ticker-track{display:inline-flex;gap:2.5rem;animation:ticker 25s linear infinite;white-space:nowrap;}
+.ticker-track:hover{animation-play-state:paused;}
 @keyframes ticker{from{transform:translateX(0);}to{transform:translateX(-50%);}}
-.ticker-item{display:inline-flex;align-items:center;gap:.6rem;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;}
-.ticker-item span:first-child{color:var(--red);}
+.ticker-item{display:inline-flex;align-items:center;gap:8px;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;}
+.ticker-item img{width:14px;height:14px;object-fit:contain;opacity:.5;}
 
-/* ── THREE TRUTHS — horizontal scroll on mobile, grid on desktop ── */
-.truths{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  border-bottom:1px solid var(--border);
-}
-.truth{
-  padding:3rem 2rem;
-  border-right:1px solid var(--border);
-  position:relative;
-}
-.truth:last-child{border-right:none;}
-.truth-num{
-  font-family:'Bebas Neue',sans-serif;
-  font-size:100px;color:var(--surface2);
-  line-height:1;position:absolute;top:1.5rem;right:1.5rem;
-  letter-spacing:-4px;pointer-events:none;
-}
-.truth-tag{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--red);text-transform:uppercase;margin-bottom:1rem;}
-.truth-title{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:1px;margin-bottom:.75rem;line-height:1;}
-.truth-body{font-size:14px;color:var(--text);line-height:1.75;font-weight:300;max-width:280px;}
+/* ── TRUST STRIP (like Carfax's stat bar) ── */
+.trust-strip{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--surface);}
+.trust-cell{padding:2rem 2.5rem;border-right:1px solid var(--border);display:flex;flex-direction:column;gap:6px;}
+.trust-cell:last-child{border-right:none;}
+.trust-num{font-family:'Bebas Neue',sans-serif;font-size:44px;color:var(--red);line-height:1;letter-spacing:1px;}
+.trust-label{font-size:13px;color:var(--muted);font-weight:400;}
 
-/* ── HOW — numbered steps with big type ── */
-.how{border-bottom:1px solid var(--border);}
-.how-header{
-  padding:2.5rem 2rem 1.5rem;
-  border-bottom:1px solid var(--border);
-  display:flex;align-items:baseline;gap:1.5rem;
-}
-.how-header-title{font-family:'Bebas Neue',sans-serif;font-size:48px;letter-spacing:1px;}
-.how-header-sub{font-size:13px;color:var(--muted);font-weight:300;}
-.steps-grid{display:grid;grid-template-columns:repeat(4,1fr);}
-.step{padding:2rem;border-right:1px solid var(--border);}
-.step:last-child{border-right:none;}
-.step-num{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:1.25rem;}
-.step-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:1px;margin-bottom:.75rem;line-height:1;}
-.step-body{font-size:13px;color:var(--text);line-height:1.7;font-weight:300;}
-.step-time{display:inline-block;margin-top:.75rem;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;color:var(--red);background:rgba(192,57,43,.1);border:1px solid rgba(192,57,43,.2);padding:3px 8px;border-radius:2px;}
+/* ── SECTION SHARED ── */
+.section{padding:6rem 2.5rem;max-width:1200px;margin:0 auto;}
+.section-tag{display:inline-block;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--red);text-transform:uppercase;margin-bottom:.75rem;}
+.section-h{font-family:'Bebas Neue',sans-serif;font-size:clamp(38px,4.5vw,60px);line-height:1;letter-spacing:1px;margin-bottom:.75rem;}
+.section-sub{font-size:15px;color:var(--text);font-weight:300;line-height:1.7;max-width:480px;}
 
-/* ── FEATURES — two column editorial ── */
-.features{
-  display:grid;
-  grid-template-columns:280px 1fr;
-  border-bottom:1px solid var(--border);
-}
-.features-sidebar{
-  padding:2.5rem 2rem;
-  border-right:1px solid var(--border);
-  display:flex;flex-direction:column;justify-content:space-between;
-}
-.features-sidebar-title{font-family:'Bebas Neue',sans-serif;font-size:40px;letter-spacing:1px;line-height:1;margin-bottom:1rem;}
-.features-sidebar-sub{font-size:13px;color:var(--text);line-height:1.7;font-weight:300;}
-.features-sidebar-cta{
-  display:block;
-  background:transparent;border:1px solid var(--border);
-  color:var(--white);padding:12px 16px;border-radius:3px;
-  text-decoration:none;font-size:13px;font-weight:500;
-  text-align:center;margin-top:2rem;transition:all .2s;
-}
-.features-sidebar-cta:hover{border-color:#444;background:var(--surface);}
-.features-grid{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(3,auto);}
-.feat{
-  padding:2rem;
-  border-bottom:1px solid var(--border);
-  border-right:1px solid var(--border);
-}
-.feat:nth-child(2n){border-right:none;}
-.feat:nth-last-child(-n+2){border-bottom:none;}
-.feat-icon{font-size:22px;margin-bottom:.75rem;}
-.feat-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;margin-bottom:.5rem;}
-.feat-body{font-size:13px;color:var(--text);line-height:1.7;font-weight:300;}
+/* ── HOW IT WORKS — horizontal steps like Carfax ── */
+.how-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);margin-top:3rem;border-radius:12px;overflow:hidden;}
+.how-step{background:var(--surface);padding:2rem 1.75rem;position:relative;}
+.how-step-num{font-family:'Bebas Neue',sans-serif;font-size:52px;color:var(--border);line-height:1;margin-bottom:1rem;}
+.how-step-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;margin-bottom:.6rem;}
+.how-step-body{font-size:13px;color:var(--muted);line-height:1.6;}
+.how-step-time{display:inline-block;margin-top:.75rem;font-family:'DM Mono',monospace;font-size:9px;color:var(--red);letter-spacing:1px;background:rgba(192,57,43,.08);border:1px solid rgba(192,57,43,.15);padding:3px 9px;border-radius:3px;}
+.how-arrow{position:absolute;right:-1px;top:50%;transform:translateY(-50%);width:12px;height:12px;border-top:2px solid var(--border);border-right:2px solid var(--border);transform:translateY(-50%) rotate(45deg);z-index:1;}
 
-/* ── FREE SECTION ── */
-.free-section{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  border-bottom:1px solid var(--border);
-}
-.free-left{
-  padding:4rem 2rem;
-  border-right:1px solid var(--border);
-  display:flex;flex-direction:column;justify-content:center;
-}
-.free-price-block{margin-bottom:2rem;}
-.free-price{font-family:'Bebas Neue',sans-serif;font-size:120px;line-height:.85;color:var(--white);letter-spacing:-4px;}
-.free-price-label{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:3px;color:var(--muted);margin-top:.5rem;}
-.free-desc{font-size:15px;color:var(--text);line-height:1.7;font-weight:300;max-width:380px;margin-bottom:2rem;}
-.free-cta{
-  display:inline-block;
-  background:var(--red);color:#fff;
-  padding:14px 32px;border-radius:3px;
-  text-decoration:none;font-size:14px;font-weight:500;
-  transition:background .15s;
-  align-self:flex-start;
-}
-.free-cta:hover{background:var(--red2);}
-.free-right{
-  padding:2rem;
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:1px;
-  background:var(--border);
-  align-content:start;
-}
-.free-feat{
-  background:var(--black);
-  padding:1.25rem;
-  display:flex;align-items:flex-start;gap:.75rem;
-}
-.free-feat-icon{color:var(--red);font-size:14px;margin-top:2px;flex-shrink:0;}
-.free-feat-text{font-size:13px;color:var(--white);font-weight:500;}
-.free-feat-sub{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.4;}
+/* ── FEATURES — card grid ── */
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:3rem;}
+.feat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;transition:border-color .2s,transform .2s;}
+.feat-card:hover{border-color:#333;transform:translateY(-2px);}
+.feat-card-icon{font-size:28px;margin-bottom:1rem;}
+.feat-card-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;margin-bottom:.5rem;}
+.feat-card-body{font-size:13px;color:var(--muted);line-height:1.65;}
 
-/* ── CLOSING STATEMENT ── */
-.closing{
-  min-height:50vh;
-  display:flex;flex-direction:column;
-  align-items:center;justify-content:center;
-  text-align:center;padding:6rem 2rem;
-  position:relative;overflow:hidden;
-}
-.closing::before{
-  content:'';position:absolute;inset:0;
-  background:radial-gradient(ellipse at 50% 60%,rgba(192,57,43,.07) 0%,transparent 65%);
-}
-.closing-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:1.5rem;position:relative;z-index:1;}
-.closing-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(56px,8vw,100px);letter-spacing:2px;line-height:.9;margin-bottom:1.5rem;position:relative;z-index:1;}
-.closing-title em{color:var(--red);font-style:normal;}
-.closing-sub{font-size:16px;color:var(--text);max-width:400px;line-height:1.7;font-weight:300;margin-bottom:2.5rem;position:relative;z-index:1;}
-.closing-cta{
-  background:var(--red);color:#fff;
-  padding:16px 40px;border-radius:3px;
-  text-decoration:none;font-size:15px;font-weight:500;
-  transition:all .2s;position:relative;z-index:1;
-}
-.closing-cta:hover{background:var(--red2);transform:translateY(-1px);}
+/* ── FOUNDER SECTION ── */
+.founder-section{background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+.founder-inner{max-width:1200px;margin:0 auto;padding:5rem 2.5rem;display:grid;grid-template-columns:1fr 380px;gap:5rem;align-items:center;}
+.founder-tag{display:inline-block;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--red);text-transform:uppercase;margin-bottom:.75rem;}
+.founder-h{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,4vw,56px);line-height:1;letter-spacing:1px;margin-bottom:1.25rem;}
+.founder-body{font-size:15px;color:var(--text);line-height:1.8;font-weight:300;margin-bottom:1.75rem;}
+.founder-card{background:var(--black);border:1px solid var(--border);border-radius:16px;padding:2rem;text-align:center;}
+.founder-avatar{width:80px;height:80px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:36px;color:#fff;margin:0 auto 1rem;letter-spacing:1px;}
+.founder-name{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1px;margin-bottom:3px;}
+.founder-role{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:1rem;}
+.founder-bio{font-size:13px;color:var(--text);line-height:1.7;margin-bottom:1.25rem;}
+.founder-divider{height:1px;background:var(--border);margin:1.25rem 0;}
+.founder-contact-row{display:flex;flex-direction:column;gap:8px;}
+.founder-contact-item{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;}
+.founder-contact-icon{font-size:14px;}
+.founder-contact-item a{color:var(--text);transition:color .2s;}
+.founder-contact-item a:hover{color:var(--red2);}
+
+/* ── ABOUT COMPANY ── */
+.about-section{max-width:1200px;margin:0 auto;padding:5rem 2.5rem;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start;}
+.about-left .section-h{margin-bottom:1.25rem;}
+.about-body{font-size:15px;color:var(--text);line-height:1.8;font-weight:300;margin-bottom:1.25rem;}
+.about-vals{display:flex;flex-direction:column;gap:12px;margin-top:1.5rem;}
+.about-val{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:var(--surface);border:1px solid var(--border);border-radius:8px;}
+.about-val-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
+.about-val-title{font-size:14px;font-weight:600;margin-bottom:2px;}
+.about-val-body{font-size:12px;color:var(--muted);line-height:1.5;}
+
+/* ── CONTACT SECTION ── */
+.contact-section{background:var(--surface);border-top:1px solid var(--border);}
+.contact-inner{max-width:1200px;margin:0 auto;padding:4rem 2.5rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:2rem;align-items:start;}
+.contact-block{}
+.contact-block-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:.75rem;}
+.contact-block-val{font-size:15px;color:var(--white);font-weight:500;}
+.contact-block-val a{color:var(--white);transition:color .2s;}
+.contact-block-val a:hover{color:var(--red2);}
+.contact-block-sub{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.5;}
+
+/* ── CTA BAND ── */
+.cta-band{background:var(--red);padding:4rem 2.5rem;text-align:center;position:relative;overflow:hidden;}
+.cta-band::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 100%,rgba(0,0,0,.2) 0%,transparent 70%);}
+.cta-band-logo{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:1rem;position:relative;z-index:1;}
+.cta-band-logo img{width:32px;height:32px;object-fit:contain;filter:brightness(0) invert(1);}
+.cta-band-logo-text{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;color:#fff;}
+.cta-band-h{font-family:'Bebas Neue',sans-serif;font-size:clamp(40px,5vw,68px);color:#fff;line-height:1;letter-spacing:1px;margin-bottom:.75rem;position:relative;z-index:1;}
+.cta-band-sub{font-size:16px;color:rgba(255,255,255,.7);margin-bottom:2rem;position:relative;z-index:1;}
+.cta-band-btn{display:inline-block;background:#fff;color:var(--red);padding:15px 36px;border-radius:8px;font-size:15px;font-weight:700;transition:all .15s;position:relative;z-index:1;}
+.cta-band-btn:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.3);}
 
 /* ── FOOTER ── */
-footer{
-  border-top:1px solid var(--border);
-  background:var(--surface);
-  padding:1.5rem 2rem;
-  display:flex;align-items:center;justify-content:space-between;
-}
-.footer-logo{display:flex;align-items:center;gap:8px;}
-.footer-logo img{width:20px;height:20px;object-fit:contain;}
-.footer-logo-text{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;}
-.footer-logo-text span{color:var(--red);}
-.footer-right{text-align:right;}
-.footer-tagline{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;}
+footer{background:var(--black);border-top:1px solid var(--border);padding:2rem 2.5rem;display:flex;align-items:center;justify-content:space-between;}
+.footer-brand{display:flex;align-items:center;gap:8px;}
+.footer-brand img{width:20px;height:20px;object-fit:contain;}
+.footer-brand-text{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;}
+.footer-brand-text span{color:var(--red);}
+.footer-right{font-size:12px;color:var(--muted);}
 
-/* ── SCROLL TRANSITIONS ── */
-.reveal{
-  opacity:0;
-  transform:translateY(32px);
-  transition:opacity .65s cubic-bezier(.16,1,.3,1), transform .65s cubic-bezier(.16,1,.3,1);
-}
-.reveal.visible{opacity:1;transform:translateY(0);}
+/* ── REVEAL ANIMATIONS ── */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .65s cubic-bezier(.16,1,.3,1),transform .65s cubic-bezier(.16,1,.3,1);}
+.reveal.visible{opacity:1;transform:none;}
+.reveal-left{opacity:0;transform:translateX(-24px);transition:opacity .6s cubic-bezier(.16,1,.3,1),transform .6s cubic-bezier(.16,1,.3,1);}
+.reveal-left.visible{opacity:1;transform:none;}
+.reveal-right{opacity:0;transform:translateX(24px);transition:opacity .6s cubic-bezier(.16,1,.3,1),transform .6s cubic-bezier(.16,1,.3,1);}
+.reveal-right.visible{opacity:1;transform:none;}
+.stagger>*{opacity:0;transform:translateY(20px);transition:opacity .5s cubic-bezier(.16,1,.3,1),transform .5s cubic-bezier(.16,1,.3,1);}
+.stagger.visible>*:nth-child(1){opacity:1;transform:none;transition-delay:.04s;}
+.stagger.visible>*:nth-child(2){opacity:1;transform:none;transition-delay:.1s;}
+.stagger.visible>*:nth-child(3){opacity:1;transform:none;transition-delay:.16s;}
+.stagger.visible>*:nth-child(4){opacity:1;transform:none;transition-delay:.22s;}
+.stagger.visible>*:nth-child(5){opacity:1;transform:none;transition-delay:.28s;}
+.stagger.visible>*:nth-child(6){opacity:1;transform:none;transition-delay:.34s;}
 
-.reveal-left{
-  opacity:0;
-  transform:translateX(-24px);
-  transition:opacity .6s cubic-bezier(.16,1,.3,1), transform .6s cubic-bezier(.16,1,.3,1);
+/* ── RESPONSIVE ── */
+@media(max-width:1024px){
+  .hero{grid-template-columns:1fr;gap:2.5rem;padding-top:100px;}
+  .hero-card{max-width:480px;}
+  .founder-inner{grid-template-columns:1fr;}
+  .about-section{grid-template-columns:1fr;}
+  .contact-inner{grid-template-columns:1fr 1fr;}
+  .trust-strip{grid-template-columns:repeat(2,1fr);}
 }
-.reveal-left.visible{opacity:1;transform:translateX(0);}
-
-.reveal-right{
-  opacity:0;
-  transform:translateX(24px);
-  transition:opacity .6s cubic-bezier(.16,1,.3,1), transform .6s cubic-bezier(.16,1,.3,1);
-}
-.reveal-right.visible{opacity:1;transform:translateX(0);}
-
-/* Staggered children */
-.stagger-children > *{
-  opacity:0;
-  transform:translateY(24px);
-  transition:opacity .55s cubic-bezier(.16,1,.3,1), transform .55s cubic-bezier(.16,1,.3,1);
-}
-.stagger-children.visible > *:nth-child(1){transition-delay:.05s;opacity:1;transform:none;}
-.stagger-children.visible > *:nth-child(2){transition-delay:.12s;opacity:1;transform:none;}
-.stagger-children.visible > *:nth-child(3){transition-delay:.19s;opacity:1;transform:none;}
-.stagger-children.visible > *:nth-child(4){transition-delay:.26s;opacity:1;transform:none;}
-.stagger-children.visible > *:nth-child(5){transition-delay:.33s;opacity:1;transform:none;}
-.stagger-children.visible > *:nth-child(6){transition-delay:.40s;opacity:1;transform:none;}
-
-/* Responsive */
-@media(max-width:900px){
-  .hero{grid-template-columns:1fr;}
-  .hero-right{border-top:1px solid var(--border);}
-  .truths{grid-template-columns:1fr;}
-  .truth{border-right:none;border-bottom:1px solid var(--border);}
-  .truth:last-child{border-bottom:none;}
-  .steps-grid{grid-template-columns:1fr 1fr;}
-  .step{border-bottom:1px solid var(--border);}
-  .step:nth-child(2n){border-right:none;}
-  .step:nth-last-child(-n+2){border-bottom:none;}
-  .features{grid-template-columns:1fr;}
-  .features-sidebar{border-right:none;border-bottom:1px solid var(--border);}
-  .free-section{grid-template-columns:1fr;}
-  .free-left{border-right:none;border-bottom:1px solid var(--border);}
-  .nav-link{display:none;}
-}
-@media(max-width:600px){
-  .steps-grid{grid-template-columns:1fr;}
-  .step{border-right:none;}
-  .step:nth-last-child(-n+2){border-bottom:1px solid var(--border);}
-  .step:last-child{border-bottom:none;}
-  .hero-bottom{grid-template-columns:1fr 1fr;}
-  .free-right{grid-template-columns:1fr;}
-  .features-grid{grid-template-columns:1fr;}
-  .feat{border-right:none;}
-  .feat:nth-last-child(-n+2){border-bottom:1px solid var(--border);}
-  .feat:last-child{border-bottom:none;}
+@media(max-width:768px){
+  .nav{padding:0 1.25rem;}
+  .nav-links{display:none;}
+  .hero{padding:90px 1.25rem 3rem;}
+  .how-steps{grid-template-columns:1fr 1fr;}
+  .feat-grid{grid-template-columns:1fr;}
+  .contact-inner{grid-template-columns:1fr;}
+  .section{padding:4rem 1.25rem;}
   footer{flex-direction:column;gap:1rem;text-align:center;}
-  .footer-right{text-align:center;}
-  .nav-cta{padding:7px 14px;font-size:12px;}
+  .hero-actions{flex-direction:column;align-items:flex-start;}
+  .cta-band{padding:3rem 1.25rem;}
+  .trust-strip{grid-template-columns:1fr 1fr;}
+  .trust-cell{padding:1.5rem;}
+}
+@media(max-width:480px){
+  .how-steps{grid-template-columns:1fr;}
+  .trust-strip{grid-template-columns:1fr 1fr;}
 }
 </style>
 </head>
 <body>
 
 <!-- NAV -->
-<nav class="nav">
-  <div class="nav-left">
-    <img src="ms-logo.svg" alt="ModStack" class="nav-logo-img"/>
-    <div class="nav-logo-text">Mod<span>Stack</span></div>
+<nav class="nav" id="nav">
+  <div class="nav-brand">
+    <img src="ms-logo.svg" alt="ModStack"/>
+    <div class="nav-brand-text">Mod<span>Stack</span></div>
   </div>
-  <div class="nav-right">
-    <a href="#how" class="nav-link">HOW IT WORKS</a>
-    <a href="#features" class="nav-link">FEATURES</a>
-    <a href="/app.html" class="nav-cta">Start free →</a>
+  <div class="nav-links">
+    <a href="#how">How it works</a>
+    <a href="#features">Features</a>
+    <a href="#about">About</a>
+    <a href="#contact">Contact</a>
   </div>
+  <a href="/app.html" class="nav-btn">Start free →</a>
 </nav>
 
-<!-- EDITORIAL ISSUE BAR -->
-<div class="issue-bar">
-  <span class="issue-tag">VEHICLE PROVENANCE REGISTRY · EST. 2025</span>
-  <div class="issue-free">
-    <div class="issue-dot"></div>
-    <span>FREE · NO SUBSCRIPTION</span>
-  </div>
-</div>
-
 <!-- HERO -->
-<section class="hero">
-  <div class="hero-left">
-    <div class="hero-kicker">The verification standard for modified cars</div>
-    <div class="hero-h1">
-      Your build<br/>has a story.<br/><em>Now it<br/>has proof.</em>
-    </div>
-    <div class="hero-bottom">
-      <div class="hero-bottom-cell">
-        <div class="hero-bottom-label">Share link in</div>
-        <div class="hero-bottom-val red">60s</div>
-        <div class="hero-bottom-desc">Signup to live build page</div>
+<section style="background:radial-gradient(ellipse at 20% 60%,rgba(192,57,43,.07) 0%,transparent 55%);">
+  <div class="hero">
+    <div>
+      <div class="hero-eyebrow reveal"><div class="hero-eyebrow-dot"></div>Vehicle Provenance Registry</div>
+      <h1 class="reveal">Your build<br/>has a story.<br/><em>Now it has proof.</em></h1>
+      <p class="hero-sub reveal">Log every mod. Track every dollar. Share a verified build page in 60 seconds.</p>
+      <div class="hero-actions reveal">
+        <a href="/app.html" class="btn-red">Start for free →</a>
+        <a href="#how" class="btn-ghost">See how it works</a>
       </div>
-      <div class="hero-bottom-cell">
-        <div class="hero-bottom-label">Cost</div>
-        <div class="hero-bottom-val">$0</div>
-        <div class="hero-bottom-desc">Free. No card needed.</div>
-      </div>
-      <div class="hero-bottom-cell">
-        <div class="hero-bottom-label">Mod limit</div>
-        <div class="hero-bottom-val">∞</div>
-        <div class="hero-bottom-desc">Unlimited builds and mods</div>
-      </div>
-      <div class="hero-bottom-cell">
-        <div class="hero-bottom-label">Verified</div>
-        <div class="hero-bottom-val">Real</div>
-        <div class="hero-bottom-desc">Receipts replace verbal claims</div>
+      <div class="hero-trust reveal">
+        <div class="hero-trust-dot"></div>
+        <span>Free · No credit card · No subscription</span>
       </div>
     </div>
-  </div>
-
-  <div class="hero-right">
-    <div class="hero-right-top">
-      <div class="hero-right-desc">
-        <strong>Log every mod. Track every dollar.</strong> One tap generates a shareable build page with a clean URL, social previews, and PDF export.
+    <div class="hero-card reveal-right">
+      <div class="hero-card-bar">
+        <div class="hcb-dot" style="background:#ff5f57;"></div>
+        <div class="hcb-dot" style="background:#febc2e;"></div>
+        <div class="hcb-dot" style="background:#28c840;"></div>
+        <div class="hcb-url">modstack.app/build/wrx-ranveer-2022</div>
       </div>
-      <div class="mini-app">
-        <div class="mini-app-bar">
-          <div class="mini-dot" style="background:#ff5f57;"></div>
-          <div class="mini-dot" style="background:#febc2e;"></div>
-          <div class="mini-dot" style="background:#28c840;"></div>
-          <span class="mini-url">modstack.app/build/wrx-ranveer-2022</span>
+      <div class="hero-card-body">
+        <div class="hc-logo-row">
+          <img src="ms-logo.svg" alt="ModStack"/>
+          <div class="hc-logo-text">Mod<span>Stack</span></div>
         </div>
-        <div class="mini-body">
-          <div class="mini-car-name">2022 Subaru WRX</div>
-          <div class="mini-stats">
-            <div class="mini-stat"><div class="mini-stat-l">Mods</div><div class="mini-stat-v">12</div></div>
-            <div class="mini-stat"><div class="mini-stat-l">Installed</div><div class="mini-stat-v" style="color:#1a9e69;">8</div></div>
-            <div class="mini-stat"><div class="mini-stat-l">Invested</div><div class="mini-stat-v" style="color:#c0392b;">$6,840</div></div>
-          </div>
-          <div class="mini-prog"><div class="mini-prog-fill"></div></div>
-          <div class="mini-mod">
-            <div><div class="mini-mod-name">Injen cold air intake</div><div class="mini-mod-cat">Engine</div></div>
-            <span class="mini-badge b-inst">installed</span>
-          </div>
-          <div class="mini-mod">
-            <div><div class="mini-mod-name">BC Racing coilovers</div><div class="mini-mod-cat">Suspension</div></div>
-            <span class="mini-badge b-prog">in progress</span>
-          </div>
-          <div class="mini-mod">
-            <div><div class="mini-mod-name">Invidia Q300 exhaust</div><div class="mini-mod-cat">Exhaust</div></div>
-            <span class="mini-badge b-plan">planned</span>
-          </div>
+        <div class="hc-car">2022 Subaru WRX</div>
+        <div class="hc-stats">
+          <div class="hc-stat"><div class="hc-stat-l">Mods</div><div class="hc-stat-v">12</div></div>
+          <div class="hc-stat"><div class="hc-stat-l">Installed</div><div class="hc-stat-v" style="color:#1a9e69;">8</div></div>
+          <div class="hc-stat"><div class="hc-stat-l">Invested</div><div class="hc-stat-v" style="color:#c0392b;">$6,840</div></div>
         </div>
+        <div class="hc-prog"><div class="hc-prog-fill"></div></div>
+        <div class="hc-mod"><div><div class="hc-mod-name">Injen cold air intake</div><div class="hc-mod-cat">Engine</div></div><span class="hc-badge b-i">installed</span></div>
+        <div class="hc-mod"><div><div class="hc-mod-name">BC Racing coilovers</div><div class="hc-mod-cat">Suspension</div></div><span class="hc-badge b-ip">in progress</span></div>
+        <div class="hc-mod"><div><div class="hc-mod-name">Invidia Q300 exhaust</div><div class="hc-mod-cat">Exhaust</div></div><span class="hc-badge b-p">planned</span></div>
       </div>
-    </div>
-    <div class="hero-right-cta">
-      <a href="/app.html" class="cta-main">Start your build record →</a>
-      <div class="cta-sub">FREE · NO CARD · SHAREABLE IN 60 SECONDS</div>
     </div>
   </div>
 </section>
 
 <!-- TICKER -->
 <div class="ticker">
-  <div class="ticker-inner">
-    <span class="ticker-item"><span>→</span><span>Track every mod</span></span>
-    <span class="ticker-item"><span>→</span><span>Log every dollar</span></span>
-    <span class="ticker-item"><span>→</span><span>Share your build</span></span>
-    <span class="ticker-item"><span>→</span><span>AI Mechanic</span></span>
-    <span class="ticker-item"><span>→</span><span>PDF export</span></span>
-    <span class="ticker-item"><span>→</span><span>Cloud sync</span></span>
-    <span class="ticker-item"><span>→</span><span>Free forever</span></span>
-    <span class="ticker-item"><span>→</span><span>Track every mod</span></span>
-    <span class="ticker-item"><span>→</span><span>Log every dollar</span></span>
-    <span class="ticker-item"><span>→</span><span>Share your build</span></span>
-    <span class="ticker-item"><span>→</span><span>AI Mechanic</span></span>
-    <span class="ticker-item"><span>→</span><span>PDF export</span></span>
-    <span class="ticker-item"><span>→</span><span>Cloud sync</span></span>
-    <span class="ticker-item"><span>→</span><span>Free forever</span></span>
+  <div class="ticker-track">
+    <span class="ticker-item"><img src="ms-logo.svg" alt=""/>Track every mod</span>
+    <span class="ticker-item"><img src="ms-logo.svg" alt=""/>Log every dollar</span>
+    <span class="ticker-item"><img src="ms-logo.svg" alt=""/>Share your build</span>
+    <span class="ticker-item"><img src="ms-logo.svg" alt=""/>AI Mechanic</span>
+    <span class="ticker-item"><img src="ms-logo.svg" alt=""/>PDF export</span>
+    <span class="ticker-item"><img src="ms-logo.svg" alt=""/>Cloud sync</span>
+    <span class="ticker-item"><img src="ms-logo.svg" alt=""/>Free forever</span>
+    <span class="ticker-item"><img src="ms-logo.svg" alt=""/>Track every mod</span>
+    <span class="ticker-item"><img src="ms-logo.svg" alt=""/>Log every dollar</span>
+    <span class="ticker-item"><img src="ms-logo.svg" alt=""/>Share your build</span>
+    <span class="ticker-item"><img src="ms-logo.svg" alt=""/>AI Mechanic</span>
+    <span class="ticker-item"><img src="ms-logo.svg" alt=""/>PDF export</span>
+    <span class="ticker-item"><img src="ms-logo.svg" alt=""/>Cloud sync</span>
+    <span class="ticker-item"><img src="ms-logo.svg" alt=""/>Free forever</span>
   </div>
 </div>
 
-<!-- THREE TRUTHS -->
-<section class="truths">
-  <div class="truth reveal">
-    <div class="truth-num">01</div>
-    <div class="truth-tag">For the Builder</div>
-    <div class="truth-title">The Flex</div>
-    <div class="truth-body">A magazine-quality build page that proves what you've done. Your portfolio, your link, permanent.</div>
+<!-- TRUST STRIP -->
+<div class="trust-strip">
+  <div class="trust-cell reveal">
+    <div class="trust-num">60s</div>
+    <div class="trust-label">From signup to a live, shareable build page</div>
   </div>
-  <div class="truth reveal" style="transition-delay:.1s;">
-    <div class="truth-num">02</div>
-    <div class="truth-tag">For the Community</div>
-    <div class="truth-title">The Trust</div>
-    <div class="truth-body">Documented receipts and part numbers replace unverified claims. Every mod, permanently on record.</div>
+  <div class="trust-cell reveal">
+    <div class="trust-num">$0</div>
+    <div class="trust-label">Free to use. No subscription ever required.</div>
   </div>
-  <div class="truth reveal" style="transition-delay:.2s;">
-    <div class="truth-num">03</div>
-    <div class="truth-tag">For the Industry</div>
-    <div class="truth-title">The Data</div>
-    <div class="truth-body">A verified mod list and a roadmap of what the owner plans to buy next. The most valuable data in automotive.</div>
+  <div class="trust-cell reveal">
+    <div class="trust-num">∞</div>
+    <div class="trust-label">Unlimited builds and mods for every car you own</div>
   </div>
-</section>
+  <div class="trust-cell reveal">
+    <div class="trust-num">Real</div>
+    <div class="trust-label">Documented receipts replace unverified claims</div>
+  </div>
+</div>
 
 <!-- HOW IT WORKS -->
-<section class="how" id="how">
-  <div class="how-header reveal">
-    <div class="how-header-title">How it works</div>
-    <div class="how-header-sub">Zero to shareable in 60 seconds.</div>
-  </div>
-  <div class="steps-grid stagger-children">
-    <div class="step">
-      <div class="step-num">STEP 01</div>
-      <div class="step-title">Create<br/>your account</div>
-      <div class="step-body">Email and password. Free. No card.</div>
-      <div class="step-time">~15 seconds</div>
+<section class="section" id="how">
+  <div class="section-tag reveal">How it works</div>
+  <div class="section-h reveal">Zero to shareable<br/>in 60 seconds.</div>
+  <div class="how-steps stagger" style="margin-top:2.5rem;">
+    <div class="how-step">
+      <div class="how-step-num">01</div>
+      <div class="how-step-title">Create account</div>
+      <div class="how-step-body">Email and password. Free. No card.</div>
+      <div class="how-step-time">~15 sec</div>
     </div>
-    <div class="step">
-      <div class="step-num">STEP 02</div>
-      <div class="step-title">Add<br/>your car</div>
-      <div class="step-body">Year, make, model. Set a budget. Done.</div>
-      <div class="step-time">~10 seconds</div>
+    <div class="how-step">
+      <div class="how-step-num">02</div>
+      <div class="how-step-title">Add your car</div>
+      <div class="how-step-body">Year, make, model. Set a budget.</div>
+      <div class="how-step-time">~10 sec</div>
     </div>
-    <div class="step">
-      <div class="step-num">STEP 03</div>
-      <div class="step-title">Log<br/>your mods</div>
-      <div class="step-body">Name, cost, category. Planned, in progress, or installed.</div>
-      <div class="step-time">~10 seconds per mod</div>
+    <div class="how-step">
+      <div class="how-step-num">03</div>
+      <div class="how-step-title">Log your mods</div>
+      <div class="how-step-body">Name, cost, status. Planned or installed.</div>
+      <div class="how-step-time">~10 sec each</div>
     </div>
-    <div class="step">
-      <div class="step-num">STEP 04</div>
-      <div class="step-title">Share<br/>your proof</div>
-      <div class="step-body">Tap Share. Get a clean link. Post it anywhere.</div>
-      <div class="step-time">~5 seconds</div>
+    <div class="how-step">
+      <div class="how-step-num">04</div>
+      <div class="how-step-title">Share your proof</div>
+      <div class="how-step-body">Tap Share. Get a clean link. Post anywhere.</div>
+      <div class="how-step-time">~5 sec</div>
     </div>
   </div>
 </section>
 
 <!-- FEATURES -->
-<section class="features" id="features">
-  <div class="features-sidebar reveal-left">
+<section class="section" id="features" style="padding-top:2rem;">
+  <div class="section-tag reveal">Features</div>
+  <div class="section-h reveal">Built for builders.<br/>Not accountants.</div>
+  <div class="feat-grid stagger">
+    <div class="feat-card">
+      <div class="feat-card-icon">📋</div>
+      <div class="feat-card-title">Build Records</div>
+      <div class="feat-card-body">Every mod logged — name, cost, category, status. Full history, always yours.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-card-icon">💰</div>
+      <div class="feat-card-title">Budget Tracking</div>
+      <div class="feat-card-body">Set a budget. Watch spend in real time. Know exactly what's left.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-card-icon">🔗</div>
+      <div class="feat-card-title">Public Build Pages</div>
+      <div class="feat-card-body">One tap. A clean shareable URL with full social preview cards.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-card-icon">🤖</div>
+      <div class="feat-card-title">AI Mechanic</div>
+      <div class="feat-card-body">Expert parts advice tailored to your exact build and budget.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-card-icon">📄</div>
+      <div class="feat-card-title">PDF Export</div>
+      <div class="feat-card-body">Official build spec in one tap. Hand it to your mechanic or buyer.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-card-icon">☁️</div>
+      <div class="feat-card-title">Cloud Sync</div>
+      <div class="feat-card-body">Log a mod at the shop. Pull up your build anywhere, any device.</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOUNDER + ABOUT -->
+<div class="founder-section" id="about">
+  <div class="founder-inner">
     <div>
-      <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--red);margin-bottom:1rem;text-transform:uppercase;">Everything included</div>
-      <div class="features-sidebar-title">Built for builders.<br/>Not accountants.</div>
-      <div class="features-sidebar-sub" style="margin-top:1rem;">If it takes more than 30 seconds to log a mod, it doesn't belong here.</div>
+      <div class="founder-tag reveal">The Founder</div>
+      <div class="founder-h reveal">Built by a car person,<br/>for car people.</div>
+      <p class="founder-body reveal">I'm Ranveer — I'm 18 years old and I've been modifying cars since I could drive. I built ModStack because I got tired of losing track of everything I'd done to my 2004 Honda CRV. Receipts in notes apps, costs in my head, mod list nowhere. When someone asked what I had done, I couldn't properly answer.</p>
+      <p class="founder-body reveal">ModStack is the tool I wished existed. A permanent, shareable record of every modification — so your build has proof, not just a story. We're pre-revenue, growing by word of mouth, and every feature is free while we build the community.</p>
+      <div class="about-vals stagger">
+        <div class="about-val reveal">
+          <div class="about-val-icon">🔧</div>
+          <div><div class="about-val-title">Authenticity first</div><div class="about-val-body">Built by someone who actually wrenches. Every feature comes from a real problem.</div></div>
+        </div>
+        <div class="about-val reveal">
+          <div class="about-val-icon">🔒</div>
+          <div><div class="about-val-title">Zero fluff</div><div class="about-val-body">No inflated claims. No mystery builds. Just documented receipts and verified data.</div></div>
+        </div>
+        <div class="about-val reveal">
+          <div class="about-val-icon">🌱</div>
+          <div><div class="about-val-title">Community owned</div><div class="about-val-body">Free while we grow. Built for builders, not investors.</div></div>
+        </div>
+      </div>
     </div>
-    <a href="/app.html" class="features-sidebar-cta">Try it free →</a>
-  </div>
-  <div class="features-grid stagger-children">
-    <div class="feat"><div class="feat-icon">📋</div><div class="feat-title">Build Records</div><div class="feat-body">Every mod logged — name, cost, category, status, notes. Your full history, always yours.</div></div>
-    <div class="feat"><div class="feat-icon">💰</div><div class="feat-title">Budget Tracking</div><div class="feat-body">Set a budget. See spend in real time. Know exactly what's left.</div></div>
-    <div class="feat"><div class="feat-icon">🔗</div><div class="feat-title">Public Build Pages</div><div class="feat-body">One tap. A clean shareable URL with full social preview cards.</div></div>
-    <div class="feat"><div class="feat-icon">🤖</div><div class="feat-title">AI Mechanic</div><div class="feat-body">Ask anything about your build. Parts, fitment, power targets — tailored to your car.</div></div>
-    <div class="feat"><div class="feat-icon">📄</div><div class="feat-title">PDF Export</div><div class="feat-body">Official build spec in one tap. Hand it to your mechanic or a buyer.</div></div>
-    <div class="feat"><div class="feat-icon">☁️</div><div class="feat-title">Cloud Sync</div><div class="feat-body">Add a mod at the shop on your phone. Pull it up anywhere.</div></div>
-  </div>
-</section>
-
-<!-- FREE -->
-<section class="free-section">
-  <div class="free-left reveal-left">
-    <div class="free-price-block">
-      <div class="free-price">$0</div>
-      <div class="free-price-label">Free · No Credit Card</div>
+    <div>
+      <div class="founder-card reveal-right">
+        <div class="founder-avatar">R</div>
+        <div class="founder-name">Ranveer Jayaswal</div>
+        <div class="founder-role">Founder & Builder</div>
+        <div class="founder-bio">18 years old. Car enthusiast. Built ModStack to document my 2004 Honda CRV and ended up building a platform for the whole community.</div>
+        <div class="founder-divider"></div>
+        <div class="founder-contact-row">
+          <div class="founder-contact-item">
+            <span class="founder-contact-icon">✉️</span>
+            <a href="mailto:official@modstackapp.com">official@modstackapp.com</a>
+          </div>
+          <div class="founder-contact-item">
+            <span class="founder-contact-icon">📞</span>
+            <a href="tel:+19253013247">+1 (925) 301-3247</a>
+          </div>
+          <div class="founder-contact-item">
+            <span class="founder-contact-icon">🌐</span>
+            <a href="/app.html">modstackapp.com</a>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="free-desc">Every feature. No limits. No time restriction.</div>
-    <a href="/app.html" class="free-cta">Start your build record →</a>
   </div>
-  <div class="free-right stagger-children">
-    <div class="free-feat"><span class="free-feat-icon">→</span><div><div class="free-feat-text">Unlimited builds</div><div class="free-feat-sub">Every car you've ever built</div></div></div>
-    <div class="free-feat"><span class="free-feat-icon">→</span><div><div class="free-feat-text">Unlimited mods</div><div class="free-feat-sub">No cap, ever</div></div></div>
-    <div class="free-feat"><span class="free-feat-icon">→</span><div><div class="free-feat-text">Budget tracking</div><div class="free-feat-sub">Real-time spend vs. budget</div></div></div>
-    <div class="free-feat"><span class="free-feat-icon">→</span><div><div class="free-feat-text">AI Mechanic</div><div class="free-feat-sub">Expert advice for your build</div></div></div>
-    <div class="free-feat"><span class="free-feat-icon">→</span><div><div class="free-feat-text">Shareable build pages</div><div class="free-feat-sub">Clean URL, social previews</div></div></div>
-    <div class="free-feat"><span class="free-feat-icon">→</span><div><div class="free-feat-text">PDF export</div><div class="free-feat-sub">Official build specification</div></div></div>
-    <div class="free-feat"><span class="free-feat-icon">→</span><div><div class="free-feat-text">Cloud sync</div><div class="free-feat-sub">Any device, any time</div></div></div>
-    <div class="free-feat"><span class="free-feat-icon">→</span><div><div class="free-feat-text">Social preview cards</div><div class="free-feat-sub">Looks sharp everywhere</div></div></div>
+</div>
+
+<!-- ABOUT COMPANY -->
+<section style="background:var(--black);border-bottom:1px solid var(--border);">
+  <div class="about-section">
+    <div class="about-left">
+      <div class="section-tag reveal">About ModStack</div>
+      <div class="section-h reveal">The verification standard<br/>for modified cars.</div>
+      <p class="about-body reveal">ModStack is a vehicle provenance registry built for the modified car community. We give every builder a permanent, shareable digital record of their build — replacing verbal claims with documented proof.</p>
+      <p class="about-body reveal">Think of it as CarFax, but for modifications. Instead of ownership history, we track the modification history — every part installed, every dollar spent, every upgrade planned.</p>
+    </div>
+    <div class="stagger">
+      <div class="about-val reveal">
+        <div class="about-val-icon">🏁</div>
+        <div><div class="about-val-title">Founded 2025</div><div class="about-val-body">Built in the San Francisco Bay Area by a teenager who modifies cars.</div></div>
+      </div>
+      <div class="about-val reveal">
+        <div class="about-val-icon">🎯</div>
+        <div><div class="about-val-title">Mission</div><div class="about-val-body">Make every modified car's history transparent, verifiable, and shareable.</div></div>
+      </div>
+      <div class="about-val reveal">
+        <div class="about-val-icon">🚗</div>
+        <div><div class="about-val-title">For builders</div><div class="about-val-body">Every platform, every make, every mod. If you build cars, ModStack is for you.</div></div>
+      </div>
+      <div class="about-val reveal">
+        <div class="about-val-icon">💬</div>
+        <div><div class="about-val-title">Community first</div><div class="about-val-body">Free during our growth phase. We grow when our users grow.</div></div>
+      </div>
+    </div>
   </div>
 </section>
 
-<!-- CLOSING -->
-<section class="closing">
-  <div class="closing-label reveal">Free to start · No card required</div>
-  <div class="closing-title reveal" style="transition-delay:.1s;">Your build.<br/>On <em>record.</em></div>
-  <div class="closing-sub reveal" style="transition-delay:.2s;">Every mod. Every dollar. Verified and shareable.</div>
-  <a href="/app.html" class="closing-cta reveal" style="transition-delay:.3s;">Start for free →</a>
-</section>
+<!-- CONTACT -->
+<div class="contact-section" id="contact">
+  <div class="contact-inner">
+    <div class="contact-block reveal">
+      <div class="contact-block-label">Email</div>
+      <div class="contact-block-val"><a href="mailto:official@modstackapp.com">official@modstackapp.com</a></div>
+      <div class="contact-block-sub">For questions, partnerships, and feedback</div>
+    </div>
+    <div class="contact-block reveal">
+      <div class="contact-block-label">Phone</div>
+      <div class="contact-block-val"><a href="tel:+19253013247">+1 (925) 301-3247</a></div>
+      <div class="contact-block-sub">Available Mon–Fri, 9am–6pm PT</div>
+    </div>
+    <div class="contact-block reveal">
+      <div class="contact-block-label">Headquarters</div>
+      <div class="contact-block-val">San Francisco Bay Area</div>
+      <div class="contact-block-sub">California, United States</div>
+    </div>
+  </div>
+</div>
 
-<footer>
-  <div class="footer-logo">
+<!-- CTA BAND -->
+<div class="cta-band">
+  <div class="cta-band-logo">
     <img src="ms-logo.svg" alt="ModStack"/>
-    <div class="footer-logo-text">Mod<span>Stack</span></div>
+    <div class="cta-band-logo-text">ModStack</div>
   </div>
-  <div class="footer-right">
-    <div class="footer-tagline">© 2025 MODSTACK · VEHICLE PROVENANCE REGISTRY</div>
+  <div class="cta-band-h">Your build.<br/>On record.</div>
+  <div class="cta-band-sub">Free to start. No credit card. Shareable in 60 seconds.</div>
+  <a href="/app.html" class="cta-band-btn">Start your build record →</a>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand">
+    <img src="ms-logo.svg" alt="ModStack"/>
+    <div class="footer-brand-text">Mod<span>Stack</span></div>
   </div>
+  <div class="footer-right">© 2025 ModStack · Vehicle Provenance Registry · Built in California</div>
 </footer>
 
 <script>
-const observer=new IntersectionObserver((entries)=>{
-  entries.forEach(e=>{
-    if(e.isIntersecting)e.target.classList.add('visible');
+// Nav scroll effect
+window.addEventListener('scroll',()=>{
+  document.getElementById('nav').classList.toggle('scrolled',window.scrollY>20);
+});
+
+// Scroll reveal
+const obs=new IntersectionObserver(e=>{
+  e.forEach(entry=>{
+    if(entry.isIntersecting)entry.target.classList.add('visible');
   });
 },{threshold:0.07,rootMargin:'0px 0px -40px 0px'});
-document.querySelectorAll('.reveal,.reveal-left,.reveal-right,.stagger-children').forEach(el=>{
-  observer.observe(el);
-});
+document.querySelectorAll('.reveal,.reveal-left,.reveal-right,.stagger').forEach(el=>obs.observe(el));
 </script>
 </body>
 </html>
